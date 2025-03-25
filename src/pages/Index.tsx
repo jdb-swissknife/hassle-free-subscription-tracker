@@ -1,13 +1,175 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, CheckCircle, Bell, CalendarClock, Sparkles } from 'lucide-react';
+import AnimatedTransition from '@/components/AnimatedTransition';
+
+const Index: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <AnimatedTransition location="index" className="min-h-screen">
+      <div className="flex flex-col min-h-screen">
+        <header className="container max-w-7xl mx-auto px-4 py-6">
+          <nav className="flex justify-between items-center">
+            <div className="text-xl font-medium text-gradient">SubscribeAI</div>
+            <div>
+              <Button 
+                variant="ghost" 
+                className="mr-2"
+                onClick={() => navigate('/settings')}
+              >
+                Settings
+              </Button>
+              <Button onClick={() => navigate('/dashboard')}>
+                Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </nav>
+        </header>
+        
+        <main className="flex-grow">
+          <section className="py-20 md:py-32">
+            <div className="container max-w-7xl mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-6">
+                  <div className="inline-block mb-2">
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                      Hassle-free subscription tracking
+                    </span>
+                  </div>
+                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight">
+                    Never forget a subscription <span className="text-gradient">payment</span> again
+                  </h1>
+                  <p className="text-xl text-muted-foreground">
+                    SubscribeAI keeps track of all your subscriptions and notifies you of important dates, so you can focus on what matters.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                    <Button size="lg" className="px-8" onClick={() => navigate('/dashboard')}>
+                      Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <Button size="lg" variant="outline" className="px-8" onClick={() => navigate('/add')}>
+                      Add Subscription
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="order-first md:order-last">
+                  <div className="relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary rounded-2xl blur-lg opacity-50"></div>
+                    <div className="glass-card p-6 relative rounded-2xl overflow-hidden border border-white/20">
+                      <img 
+                        src="https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/www/public/og.jpg" 
+                        alt="Dashboard preview" 
+                        className="rounded-xl shadow-lg w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <section className="py-16 bg-muted/30">
+            <div className="container max-w-7xl mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-4">How It Works</h2>
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                  Our AI-powered subscription tracker makes managing your subscriptions effortless
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="glass-card-hover p-6">
+                  <div className="mb-4 rounded-full bg-primary/10 p-3 w-12 h-12 flex items-center justify-center">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">Voice & Text Input</h3>
+                  <p className="text-muted-foreground">
+                    Simply describe your subscription using voice or text, and our AI will extract all the important details.
+                  </p>
+                </div>
+                
+                <div className="glass-card-hover p-6">
+                  <div className="mb-4 rounded-full bg-primary/10 p-3 w-12 h-12 flex items-center justify-center">
+                    <CalendarClock className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">Smart Tracking</h3>
+                  <p className="text-muted-foreground">
+                    We keep track of all your subscription details, including billing cycles, trial periods, and renewal dates.
+                  </p>
+                </div>
+                
+                <div className="glass-card-hover p-6">
+                  <div className="mb-4 rounded-full bg-primary/10 p-3 w-12 h-12 flex items-center justify-center">
+                    <Bell className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">Timely Notifications</h3>
+                  <p className="text-muted-foreground">
+                    Receive customized alerts for trial end dates, upcoming payments, and subscription renewals.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <section className="py-16">
+            <div className="container max-w-7xl mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-4">Key Features</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  "Voice & text input for easy data entry",
+                  "AI-powered detail extraction",
+                  "Free trial period tracking",
+                  "Renewal reminders",
+                  "Payment notifications",
+                  "Subscription analytics",
+                  "Customizable alerts",
+                  "Clean, intuitive interface"
+                ].map((feature, index) => (
+                  <div key={index} className="flex items-start p-4">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                    <p>{feature}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+          
+          <section className="py-16 bg-primary/5">
+            <div className="container max-w-3xl mx-auto px-4 text-center">
+              <h2 className="text-3xl font-bold mb-6">Ready to get started?</h2>
+              <p className="text-xl text-muted-foreground mb-8">
+                Join thousands of users who have simplified their subscription management
+              </p>
+              <Button size="lg" className="px-8" onClick={() => navigate('/dashboard')}>
+                Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        </main>
+        
+        <footer className="bg-muted/30 py-10">
+          <div className="container max-w-7xl mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="text-xl font-medium text-gradient mb-2">SubscribeAI</div>
+                <p className="text-muted-foreground">
+                  The hassle-free subscription tracker
+                </p>
+              </div>
+              <div className="text-right text-muted-foreground text-sm">
+                &copy; {new Date().getFullYear()} SubscribeAI. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
-    </div>
+    </AnimatedTransition>
   );
 };
 
