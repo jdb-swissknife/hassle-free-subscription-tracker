@@ -23,6 +23,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add" element={<AddSubscription />} />
+        <Route path="/subscription/:id" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
