@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -39,7 +38,6 @@ const Dashboard: React.FC = () => {
   const [filterActive, setFilterActive] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<SubscriptionCategory | 'all'>('all');
   
-  // Filter and sort subscriptions
   const filteredSubscriptions = subscriptions
     .filter(sub => filterActive ? sub.active : true)
     .filter(sub => categoryFilter === 'all' ? true : sub.category === categoryFilter)
@@ -63,7 +61,6 @@ const Dashboard: React.FC = () => {
       }
     });
     
-  // Calculate stats
   const activeSubscriptions = subscriptions.filter(sub => sub.active);
   const monthlySpend = activeSubscriptions.reduce((sum, sub) => {
     if (sub.cycle === 'monthly') return sum + sub.price;
@@ -74,13 +71,11 @@ const Dashboard: React.FC = () => {
   
   const yearlySpend = monthlySpend * 12;
   
-  // Find active free trials
   const today = new Date();
   const freeTrials = activeSubscriptions.filter(sub => 
     sub.trialEndDate && isBefore(today, sub.trialEndDate)
   );
   
-  // Find next payment
   const getNextPaymentInfo = () => {
     let nextPayment = null;
     let nextPaymentDate = new Date(8640000000000000); // Max date
@@ -116,12 +111,10 @@ const Dashboard: React.FC = () => {
     return nextPayment;
   };
 
-  // Find most expensive subscription
   const getMostExpensive = () => {
     if (activeSubscriptions.length === 0) return null;
     
     return activeSubscriptions.reduce((prev, current) => {
-      // Normalize to monthly cost for comparison
       const prevMonthly = prev.cycle === 'monthly' 
         ? prev.price 
         : prev.cycle === 'yearly' 
@@ -314,7 +307,7 @@ const Dashboard: React.FC = () => {
       </header>
       
       <main>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-2">
             <Tabs defaultValue="all" className="mb-6">
               <TabsList className="glass-card">
@@ -431,7 +424,7 @@ const Dashboard: React.FC = () => {
             </Tabs>
           </div>
           
-          <div>
+          <div className="lg:col-span-2">
             <SubscriptionStats 
               subscriptions={subscriptions} 
               className="mb-6"
