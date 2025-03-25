@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -59,7 +60,7 @@ const Index: React.FC = () => {
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary rounded-2xl blur-lg opacity-50"></div>
                     <div className="glass-card p-6 relative rounded-2xl overflow-hidden border border-white/20">
                       <img 
-                        src="/dashboard-preview.png" 
+                        src="/lovable-uploads/6b00ff42-f124-4fa2-a352-61c102b7a6fd.png" 
                         alt="Dashboard preview" 
                         className="rounded-xl shadow-lg w-full"
                         onError={(e) => {
