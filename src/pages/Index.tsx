@@ -37,13 +37,6 @@ const Index: React.FC = () => {
             <div className="container max-w-7xl mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 relative">
-                  <div className="absolute top-[-120px] right-[-30px] md:right-[20px] z-10 w-[150px] md:w-[180px] transform rotate-12">
-                    <img 
-                      src="/lovable-uploads/47339a03-b711-41c9-ba8f-2a16167a6d96.png" 
-                      alt="SubSnipe Agent" 
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
                   <div className="inline-block mb-2">
                     <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
                       Hassle-free subscription tracking
@@ -65,7 +58,14 @@ const Index: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="order-first md:order-last">
+                <div className="order-first md:order-last relative">
+                  <div className="absolute top-[-160px] right-[70%] md:right-[85%] z-10 w-[120px] md:w-[150px] transform rotate-12">
+                    <img 
+                      src="/lovable-uploads/47339a03-b711-41c9-ba8f-2a16167a6d96.png" 
+                      alt="SubSnipe Agent" 
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
                   <div className="relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary rounded-2xl blur-lg opacity-50"></div>
                     <div className="glass-card p-6 relative rounded-2xl overflow-hidden border border-white/20">
