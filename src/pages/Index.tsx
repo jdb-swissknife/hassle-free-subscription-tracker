@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Bell, CalendarClock, Sparkles } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
+import FloatingText from '@/components/FloatingText';
+
 const Index: React.FC = () => {
   const navigate = useNavigate();
+  
   return <AnimatedTransition location="index" className="min-h-screen">
       <div className="flex flex-col min-h-screen">
         <header className="container max-w-7xl mx-auto px-4 py-6">
@@ -22,7 +25,14 @@ const Index: React.FC = () => {
         </header>
         
         <main className="flex-grow">
-          <section className="py-20 md:py-32">
+          <section className="py-20 md:py-32 relative">
+            <FloatingText text="XYZ.com $19.00/month" color="#8B5CF6" speed={0.1} size="md" />
+            <FloatingText text="ABC.io $29.99/month" color="#0EA5E9" speed={0.15} size="md" />
+            <FloatingText text="StreamFlix $14.99/month" color="#F97316" speed={0.12} size="sm" />
+            <FloatingText text="MusicLoop $9.99/month" color="#D946EF" speed={0.08} size="sm" />
+            <FloatingText text="CloudStore $5.00/month" color="#0EA5E9" speed={0.11} size="md" />
+            <FloatingText text="NewsDaily $7.50/month" color="#8B5CF6" speed={0.09} size="lg" />
+            
             <div className="container max-w-7xl mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
@@ -152,4 +162,5 @@ const Index: React.FC = () => {
       </div>
     </AnimatedTransition>;
 };
+
 export default Index;

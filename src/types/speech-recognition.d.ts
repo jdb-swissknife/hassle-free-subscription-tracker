@@ -32,24 +32,27 @@ interface SpeechRecognition extends EventTarget {
   interimResults: boolean;
   lang: string;
   maxAlternatives: number;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: () => void;
-  onstart: () => void;
   start(): void;
   stop(): void;
   abort(): void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: (event: Event) => void;
+  onspeechstart: (event: Event) => void;
+  onspeechend: (event: Event) => void;
+  onaudiostart: (event: Event) => void;
+  onaudioend: (event: Event) => void;
+  onsoundstart: (event: Event) => void;
+  onsoundend: (event: Event) => void;
+  onstart: (event: Event) => void;
 }
 
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognition;
-}
+declare var SpeechRecognition: {
+  prototype: SpeechRecognition;
+  new(): SpeechRecognition;
+};
 
-declare global {
-  interface Window {
-    SpeechRecognition: SpeechRecognitionConstructor;
-    webkitSpeechRecognition: SpeechRecognitionConstructor;
-  }
-}
-
-export {};
+declare var webkitSpeechRecognition: {
+  prototype: SpeechRecognition;
+  new(): SpeechRecognition;
+};
