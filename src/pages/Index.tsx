@@ -40,7 +40,7 @@ const Index: React.FC = () => {
                     </span>
                   </div>
                   <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight">
-                    Never forget a subscription <span className="text-gradient">payment</span> again
+                    Free Trials Fumbled? Old Subscriptions Forgotten? Meet Agents SubLedger & SubSnipe—Your AI Dream Team.
                   </h1>
                   <p className="text-xl text-muted-foreground">
                     SubscribeAI keeps track of all your subscriptions and notifies you of important dates, so you can focus on what matters.
