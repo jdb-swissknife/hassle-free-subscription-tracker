@@ -1,25 +1,17 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Bell, CalendarClock, Sparkles } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
-
 const Index: React.FC = () => {
   const navigate = useNavigate();
-  
-  return (
-    <AnimatedTransition location="index" className="min-h-screen">
+  return <AnimatedTransition location="index" className="min-h-screen">
       <div className="flex flex-col min-h-screen">
         <header className="container max-w-7xl mx-auto px-4 py-6">
           <nav className="flex justify-between items-center">
             <div className="text-xl font-medium text-gradient">SubscribeAI</div>
             <div>
-              <Button 
-                variant="ghost" 
-                className="mr-2"
-                onClick={() => navigate('/settings')}
-              >
+              <Button variant="ghost" className="mr-2" onClick={() => navigate('/settings')}>
                 Settings
               </Button>
               <Button onClick={() => navigate('/dashboard')}>
@@ -39,7 +31,7 @@ const Index: React.FC = () => {
                       Hassle-free subscription tracking
                     </span>
                   </div>
-                  <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight">
+                  <h1 className="text-5xl font-bold tracking-tight leading-tight md:text-4xl">
                     Free Trials Fumbled? Old Subscriptions Forgotten? Meet Agents SubLedger & SubSnipe—Your AI Dream Team.
                   </h1>
                   <p className="text-xl text-muted-foreground">
@@ -59,16 +51,11 @@ const Index: React.FC = () => {
                   <div className="relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary rounded-2xl blur-lg opacity-50"></div>
                     <div className="glass-card p-6 relative rounded-2xl overflow-hidden border border-white/20">
-                      <img 
-                        src="/lovable-uploads/6b00ff42-f124-4fa2-a352-61c102b7a6fd.png" 
-                        alt="Dashboard preview" 
-                        className="rounded-xl shadow-lg w-full"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "https://i.imgur.com/qqLCJwn.png";
-                          target.onerror = null;
-                        }}
-                      />
+                      <img src="/lovable-uploads/6b00ff42-f124-4fa2-a352-61c102b7a6fd.png" alt="Dashboard preview" className="rounded-xl shadow-lg w-full" onError={e => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://i.imgur.com/qqLCJwn.png";
+                      target.onerror = null;
+                    }} />
                     </div>
                   </div>
                 </div>
@@ -126,21 +113,10 @@ const Index: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  "Voice & text input for easy data entry",
-                  "AI-powered detail extraction",
-                  "Free trial period tracking",
-                  "Renewal reminders",
-                  "Payment notifications",
-                  "Subscription analytics",
-                  "Customizable alerts",
-                  "Clean, intuitive interface"
-                ].map((feature, index) => (
-                  <div key={index} className="flex items-start p-4">
+                {["Voice & text input for easy data entry", "AI-powered detail extraction", "Free trial period tracking", "Renewal reminders", "Payment notifications", "Subscription analytics", "Customizable alerts", "Clean, intuitive interface"].map((feature, index) => <div key={index} className="flex items-start p-4">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                     <p>{feature}</p>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
           </section>
@@ -174,8 +150,6 @@ const Index: React.FC = () => {
           </div>
         </footer>
       </div>
-    </AnimatedTransition>
-  );
+    </AnimatedTransition>;
 };
-
 export default Index;
