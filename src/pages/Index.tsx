@@ -26,6 +26,14 @@ const Index: React.FC = () => {
         
         <main className="flex-grow">
           <section className="py-20 md:py-32 relative">
+            <div className="absolute top-[-50px] left-0 md:left-[5%] lg:left-[10%] z-10 w-[150px] md:w-[180px] transform rotate-6">
+              <img 
+                src="/lovable-uploads/47339a03-b711-41c9-ba8f-2a16167a6d96.png" 
+                alt="SubSnipe Agent" 
+                className="w-full h-auto object-contain"
+              />
+            </div>
+
             <FloatingText text="XYZ.com $19.00/month" color="#8B5CF6" speed={0.1} size="md" />
             <FloatingText text="ABC.io $29.99/month" color="#0EA5E9" speed={0.15} size="md" />
             <FloatingText text="StreamFlix $14.99/month" color="#F97316" speed={0.12} size="sm" />
