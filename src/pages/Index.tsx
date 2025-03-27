@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Bell, CalendarClock, Sparkles } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import FloatingText from '@/components/FloatingText';
+
 const Index: React.FC = () => {
   const navigate = useNavigate();
   return <AnimatedTransition location="index" className="min-h-screen">
@@ -54,15 +55,15 @@ const Index: React.FC = () => {
                     </Button>
                   </div>
                   
-                  {/* SubLedger agent */}
-                  <div className="absolute bottom-[-260px] left-[20%] z-10 w-[360px] md:w-[440px]">
-                    <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-42 object-contain" />
+                  {/* SubLedger agent - reduced size and adjusted position */}
+                  <div className="absolute bottom-[-220px] left-[10%] z-10 w-[280px] md:w-[320px]">
+                    <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
                   </div>
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  {/* SubSnipe agent */}
-                  <div className="absolute top-[-180px] right-[40%] md:right-[60%] z-10 w-[240px] md:w-[300px] transform rotate-0">
+                  {/* SubSnipe agent - significantly reduced size and repositioned */}
+                  <div className="absolute top-[-100px] right-[60%] z-10 w-[80px] md:w-[100px] transform rotate-0">
                     <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
                   </div>
                   <div className="relative">
