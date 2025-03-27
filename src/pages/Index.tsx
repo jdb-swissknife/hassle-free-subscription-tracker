@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -58,9 +57,9 @@ const Index: React.FC = () => {
                   </div>
                   
                   {/* SubLedger agent */}
-                  <div className="absolute bottom-[-200px] left-[20%] z-10 w-[180px] md:w-[220px]">
+                  <div className="absolute bottom-[-260px] left-[20%] z-10 w-[360px] md:w-[440px]">
                     <img 
-                      src="/lovable-uploads/f0b3a942-ba94-4cc8-82b8-accef42cbd87.png" 
+                      src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" 
                       alt="SubLedger Agent" 
                       className="w-full h-auto object-contain"
                     />
@@ -69,9 +68,9 @@ const Index: React.FC = () => {
                 
                 <div className="order-first md:order-last relative">
                   {/* SubSnipe agent */}
-                  <div className="absolute top-[-160px] right-[70%] md:right-[85%] z-10 w-[120px] md:w-[150px] transform rotate-12">
+                  <div className="absolute top-[-180px] right-[40%] md:right-[60%] z-10 w-[240px] md:w-[300px] transform rotate-0">
                     <img 
-                      src="/lovable-uploads/3d68e3eb-3542-4c80-92e5-2556f657d7c7.png" 
+                      src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" 
                       alt="SubSnipe Agent" 
                       className="w-full h-auto object-contain"
                     />
