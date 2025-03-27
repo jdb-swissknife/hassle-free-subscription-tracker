@@ -56,12 +56,22 @@ const Index: React.FC = () => {
                       Add Subscription
                     </Button>
                   </div>
+                  
+                  {/* SubLedger agent */}
+                  <div className="absolute bottom-[-200px] left-[20%] z-10 w-[180px] md:w-[220px]">
+                    <img 
+                      src="/lovable-uploads/f0b3a942-ba94-4cc8-82b8-accef42cbd87.png" 
+                      alt="SubLedger Agent" 
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
                 </div>
                 
                 <div className="order-first md:order-last relative">
+                  {/* SubSnipe agent */}
                   <div className="absolute top-[-160px] right-[70%] md:right-[85%] z-10 w-[120px] md:w-[150px] transform rotate-12">
                     <img 
-                      src="/lovable-uploads/47339a03-b711-41c9-ba8f-2a16167a6d96.png" 
+                      src="/lovable-uploads/3d68e3eb-3542-4c80-92e5-2556f657d7c7.png" 
                       alt="SubSnipe Agent" 
                       className="w-full h-auto object-contain"
                     />
