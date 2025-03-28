@@ -58,8 +58,8 @@ const Index: React.FC = () => {
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  {/* SubSnipe agent - positioned based on the X mark */}
-                  <div className="absolute top-[-120px] right-[330px] z-10 w-[160px]">
+                  {/* SubSnipe agent - moved 2 inches to the left and 1 inch down */}
+                  <div className="absolute top-[-70px] right-[450px] z-10 w-[160px]">
                     <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
                   </div>
                   <div className="relative">
@@ -76,8 +76,8 @@ const Index: React.FC = () => {
               </div>
             </div>
             
-            {/* SubLedger agent - positioned based on the X mark */}
-            <div className="absolute bottom-[20px] left-[45%] z-10 w-[140px]">
+            {/* SubLedger agent - moved 1 inch to the left */}
+            <div className="absolute bottom-[20px] left-[35%] z-10 w-[140px]">
               <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
             </div>
           </section>
