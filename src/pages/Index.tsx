@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -54,17 +55,17 @@ const Index: React.FC = () => {
                       Add Subscription
                     </Button>
                   </div>
-                  
-                  {/* SubLedger agent - reduced size and moved right */}
-                  <div className="absolute bottom-[-180px] left-[30%] z-10 w-[120px] md:w-[140px]">
-                    <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
-                  </div>
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  {/* SubSnipe agent - reduced size and repositioned */}
-                  <div className="absolute top-[-140px] right-[50%] md:right-[70%] z-10 w-[180px] md:w-[200px] transform rotate-0">
-                    <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
+                  {/* SubSnipe agent - positioned based on the screenshot */}
+                  <div className="absolute top-[-180px] right-[100px] z-10 w-[200px] md:w-[200px]">
+                    <div className="relative">
+                      <div className="absolute -top-6 w-full text-center text-xs font-medium text-primary">
+                        SubSnipe
+                      </div>
+                      <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
+                    </div>
                   </div>
                   <div className="relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary rounded-2xl blur-lg opacity-50"></div>
@@ -77,6 +78,16 @@ const Index: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+            
+            {/* SubLedger agent - positioned based on the screenshot */}
+            <div className="absolute bottom-[-100px] left-[100px] z-10 w-[180px] md:w-[180px]">
+              <div className="relative">
+                <div className="absolute -top-6 w-full text-center text-xs font-medium text-primary">
+                  SubLedger
+                </div>
+                <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
               </div>
             </div>
           </section>
