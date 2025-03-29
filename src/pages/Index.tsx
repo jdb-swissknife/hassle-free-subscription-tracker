@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Bell, CalendarClock, Sparkles } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import FloatingText from '@/components/FloatingText';
+
 const Index: React.FC = () => {
   const navigate = useNavigate();
   return <AnimatedTransition location="index" className="min-h-screen">
@@ -56,8 +57,7 @@ const Index: React.FC = () => {
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  {/* SubSnipe agent - moved 0.25 inch directly to the right from previous position */}
-                  <div className="absolute top-[-30px] right-[500px] z-10 w-[160px]">
+                  <div className="absolute top-[-80px] right-[500px] z-10 w-[160px]">
                     <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
                   </div>
                   <div className="relative">
@@ -74,8 +74,7 @@ const Index: React.FC = () => {
               </div>
             </div>
             
-            {/* SubLedger agent - moved 0.25 inch directly to the left from previous position */}
-            <div className="absolute bottom-[20px] left-[39%] z-10 w-[140px]">
+            <div className="absolute bottom-[20px] left-[36.5%] z-10 w-[140px]">
               <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
             </div>
           </section>
@@ -169,4 +168,5 @@ const Index: React.FC = () => {
       </div>
     </AnimatedTransition>;
 };
+
 export default Index;
