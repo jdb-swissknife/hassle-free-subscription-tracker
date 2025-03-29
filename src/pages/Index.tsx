@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -57,8 +58,8 @@ const Index: React.FC = () => {
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  {/* SubSnipe agent - moved 0.25 inch to the right */}
-                  <div className="absolute top-[-30px] right-[525px] z-10 w-[160px]">
+                  {/* SubSnipe agent - moved 0.25 inch directly to the right from previous position */}
+                  <div className="absolute top-[-30px] right-[500px] z-10 w-[160px]">
                     <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
                   </div>
                   <div className="relative">
@@ -75,8 +76,8 @@ const Index: React.FC = () => {
               </div>
             </div>
             
-            {/* SubLedger agent - moved 0.25 inch further to the left */}
-            <div className="absolute bottom-[20px] left-[41.5%] z-10 w-[140px]">
+            {/* SubLedger agent - moved 0.25 inch directly to the left from previous position */}
+            <div className="absolute bottom-[20px] left-[39%] z-10 w-[140px]">
               <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
             </div>
           </section>
