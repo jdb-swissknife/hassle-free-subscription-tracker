@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Bell, CalendarClock, Sparkles } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import FloatingText from '@/components/FloatingText';
-
 const Index: React.FC = () => {
   const navigate = useNavigate();
   return <AnimatedTransition location="index" className="min-h-screen">
@@ -41,7 +39,7 @@ const Index: React.FC = () => {
                       Hassle-free subscription tracking
                     </span>
                   </div>
-                  <h1 className="text-5xl font-bold tracking-tight leading-tight md:text-4xl">
+                  <h1 className="text-5xl font-bold tracking-tight leading-tight md:text-3xl">
                     Free Trials Fumbled? Old Subscriptions Forgotten? Meet Agents SubLedger & SubSnipe—Your AI Dream Team.
                   </h1>
                   <p className="text-xl text-muted-foreground">
