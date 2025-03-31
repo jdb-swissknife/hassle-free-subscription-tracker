@@ -58,7 +58,7 @@ const Index: React.FC = () => {
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  <div className="absolute top-[-80px] right-[625px] z-10 w-[200px]">
+                  <div className="absolute top-[-80px] right-[600px] z-10 w-[200px]">
                     <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
                   </div>
                   <div className="relative">
