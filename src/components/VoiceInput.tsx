@@ -114,6 +114,22 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTranscript(e.target.value);
+  };
+
+  const handleSubmitEdit = () => {
+    if (transcript.trim()) {
+      onResult(transcript);
+      setIsProcessing(true);
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+        setTranscript('');
+      }, 1000);
+    }
+  };
+
   return (
     <div className={`flex items-center gap-3 w-full ${className}`}>
       <div className="relative flex-grow glass-card p-3 rounded-xl">
@@ -122,7 +138,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
           className="w-full bg-transparent border-none focus:outline-none placeholder:text-muted-foreground"
           placeholder={listening ? "Listening..." : placeholder}
           value={transcript}
-          onChange={(e) => setTranscript(e.target.value)}
+          onChange={handleInputChange}
           disabled={listening}
         />
         {isProcessing && (
@@ -143,6 +159,14 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       >
         {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
       </Button>
+      {!listening && transcript.trim() && (
+        <Button
+          onClick={handleSubmitEdit}
+          className="rounded-md"
+        >
+          Apply Edit
+        </Button>
+      )}
     </div>
   );
 };
