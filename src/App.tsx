@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import AddSubscription from "./pages/AddSubscription";
+import SubscriptionDetail from "./pages/SubscriptionDetail";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -23,7 +24,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/add" element={<AddSubscription />} />
-        <Route path="/subscription/:id" element={<Dashboard />} />
+        <Route path="/subscription/:id" element={<SubscriptionDetail />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

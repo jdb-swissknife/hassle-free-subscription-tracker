@@ -30,9 +30,11 @@ import { format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
+  const { addSubscription } = useSubscriptions();
   const [listening, setListening] = useState(false);
   const [processingVoice, setProcessingVoice] = useState(false);
   const [subscription, setSubscription] = useState<Partial<Subscription>>({
@@ -184,7 +186,7 @@ const AddSubscription: React.FC = () => {
   };
   
   const handleSubmit = () => {
-    // In a real app, this would save to a database
+    // Add new subscription to storage
     const newSubscription: Subscription = {
       id: uuidv4(),
       name: subscription.name || '',
@@ -195,13 +197,33 @@ const AddSubscription: React.FC = () => {
       trialEndDate: hasTrial ? trialEndDate : undefined,
       category: subscription.category as SubscriptionCategory,
       active: true,
-      notifications: subscription.notifications || []
+      notifications: subscription.notifications || [],
+      color: subscription.color || getRandomColor(),
+      description: subscription.description,
+      paymentMethod: subscription.paymentMethod,
+      logo: subscription.logo,
+      endDate: subscription.endDate
     };
     
-    console.log('New subscription:', newSubscription);
-    
-    toast.success('Subscription added successfully!');
-    navigate('/');
+    addSubscription(newSubscription);
+    navigate('/dashboard');
+  };
+  
+  // Generate a random color for the subscription
+  const getRandomColor = () => {
+    const colors = [
+      '#E50914', // Netflix red
+      '#1DB954', // Spotify green
+      '#FF9900', // Amazon orange
+      '#0088CC', // Telegram blue
+      '#FF0000', // YouTube red
+      '#00AEEF', // Twitter blue
+      '#A2AAAD', // Apple gray
+      '#F56040', // Instagram gradient
+      '#7289DA', // Discord purple
+      '#00B2FF', // PayPal blue
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
   
   return (

@@ -21,7 +21,7 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   if (!trialEndDate) return null;
   
   const today = new Date();
-  const daysLeft = differenceInDays(trialEndDate, today);
+  const daysLeft = differenceInDays(new Date(trialEndDate), today);
   
   // Skip if trial has ended
   if (daysLeft < 0) return null;

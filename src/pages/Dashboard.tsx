@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -25,26 +26,29 @@ import SubscriptionCard from '@/components/SubscriptionCard';
 import FreeTrialCard from '@/components/FreeTrialCard';
 import SubscriptionStats from '@/components/SubscriptionStats';
 import NotificationBadge from '@/components/NotificationBadge';
-import { mockSubscriptions } from '@/lib/mockData';
-import { Subscription, SubscriptionCategory } from '@/lib/types';
+import { SubscriptionCategory } from '@/lib/types';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { format, addDays, isBefore } from 'date-fns';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [subscriptions] = useState<Subscription[]>(mockSubscriptions);
+  const { 
+    subscriptions,
+    calculateMonthlySpend,
+    getActiveSubscriptions,
+    getFreeTrials,
+    searchSubscriptions
+  } = useSubscriptions();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'date'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterActive, setFilterActive] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<SubscriptionCategory | 'all'>('all');
   
-  const filteredSubscriptions = subscriptions
+  const filteredSubscriptions = searchSubscriptions(searchTerm)
     .filter(sub => filterActive ? sub.active : true)
     .filter(sub => categoryFilter === 'all' ? true : sub.category === categoryFilter)
-    .filter(sub => 
-      sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sub.provider.toLowerCase().includes(searchTerm.toLowerCase())
-    )
     .sort((a, b) => {
       if (sortBy === 'name') {
         return sortOrder === 'asc' 
@@ -56,25 +60,16 @@ const Dashboard: React.FC = () => {
           : b.price - a.price;
       } else {
         return sortOrder === 'asc' 
-          ? a.startDate.getTime() - b.startDate.getTime()
-          : b.startDate.getTime() - a.startDate.getTime();
+          ? new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          : new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
       }
     });
     
-  const activeSubscriptions = subscriptions.filter(sub => sub.active);
-  const monthlySpend = activeSubscriptions.reduce((sum, sub) => {
-    if (sub.cycle === 'monthly') return sum + sub.price;
-    if (sub.cycle === 'yearly') return sum + (sub.price / 12);
-    if (sub.cycle === 'weekly') return sum + (sub.price * 4.33); // Average weeks in month
-    return sum;
-  }, 0);
-  
+  const activeSubscriptions = getActiveSubscriptions();
+  const monthlySpend = calculateMonthlySpend();
   const yearlySpend = monthlySpend * 12;
-  
   const today = new Date();
-  const freeTrials = activeSubscriptions.filter(sub => 
-    sub.trialEndDate && isBefore(today, sub.trialEndDate)
-  );
+  const freeTrials = getFreeTrials();
   
   const getNextPaymentInfo = () => {
     let nextPayment = null;
@@ -140,6 +135,14 @@ const Dashboard: React.FC = () => {
     } else {
       setSortBy(field);
       setSortOrder('asc');
+    }
+  };
+
+  const handleTabChange = (value: string) => {
+    if (value === 'all') {
+      setCategoryFilter('all');
+    } else {
+      setCategoryFilter(value as SubscriptionCategory);
     }
   };
 
@@ -309,7 +312,7 @@ const Dashboard: React.FC = () => {
       <main>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-2">
-            <Tabs defaultValue="all" className="mb-6">
+            <Tabs defaultValue="all" className="mb-6" onValueChange={handleTabChange}>
               <TabsList className="glass-card">
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="entertainment">Entertainment</TabsTrigger>

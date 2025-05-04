@@ -31,7 +31,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const today = new Date();
   
   // Check if in trial period
-  const inTrial = trialEndDate && isAfter(trialEndDate, today);
+  const inTrial = trialEndDate && isAfter(new Date(trialEndDate), today);
   
   // Calculate next billing date
   const calculateNextBillingDate = () => {
@@ -91,13 +91,16 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   
   // Status indicator element
   const renderStatusIndicator = () => {
+    const startDateObj = new Date(startDate);
+    const trialEndDateObj = trialEndDate ? new Date(trialEndDate) : undefined;
+    
     switch (status) {
       case 'trial':
         return (
           <div className="flex items-center text-yellow-600 dark:text-yellow-400 text-xs gap-1">
             <Clock className="h-3 w-3" />
             <span>
-              Trial ends {formatDistanceToNow(trialEndDate!, { addSuffix: true })}
+              Trial ends {formatDistanceToNow(trialEndDateObj!, { addSuffix: true })}
             </span>
           </div>
         );
@@ -153,7 +156,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       <div className="flex justify-between mt-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-1">
           <Calendar className="h-4 w-4" />
-          <span>Since {format(startDate, 'MMM yyyy')}</span>
+          <span>Since {format(new Date(startDate), 'MMM yyyy')}</span>
         </div>
         <div className="flex items-center gap-1">
           <CreditCard className="h-4 w-4" />
