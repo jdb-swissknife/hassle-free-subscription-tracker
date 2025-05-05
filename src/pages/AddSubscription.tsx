@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -85,6 +85,7 @@ const AddSubscription: React.FC = () => {
       // Example mock AI extraction
       const extractedData = mockAIExtraction(transcript);
       
+      // Update subscription state with extracted data
       setSubscription(prev => ({
         ...prev,
         ...extractedData
@@ -285,7 +286,7 @@ const AddSubscription: React.FC = () => {
                     <Input
                       id="name"
                       name="name"
-                      value={subscription.name}
+                      value={subscription.name || ''}
                       onChange={handleInputChange}
                       className="mt-1"
                     />
@@ -296,7 +297,7 @@ const AddSubscription: React.FC = () => {
                     <Input
                       id="provider"
                       name="provider"
-                      value={subscription.provider}
+                      value={subscription.provider || ''}
                       onChange={handleInputChange}
                       className="mt-1"
                     />
