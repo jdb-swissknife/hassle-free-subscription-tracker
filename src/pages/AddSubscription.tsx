@@ -78,18 +78,23 @@ const AddSubscription: React.FC = () => {
   
   const handleVoiceInput = (transcript: string) => {
     setProcessingVoice(true);
+    console.log("Processing voice input:", transcript);
     
-    // This is a simplified mock of AI processing
-    // In a real application, this would call an AI service to extract subscription details
+    // Extract data from voice input
     setTimeout(() => {
       // Example mock AI extraction
       const extractedData = mockAIExtraction(transcript);
+      console.log("Extracted data:", extractedData);
       
       // Update subscription state with extracted data
-      setSubscription(prev => ({
-        ...prev,
-        ...extractedData
-      }));
+      setSubscription(prev => {
+        const newData = {
+          ...prev,
+          ...extractedData
+        };
+        console.log("Updated subscription data:", newData);
+        return newData;
+      });
       
       if (extractedData.trialEndDate) {
         setHasTrial(true);
@@ -101,65 +106,100 @@ const AddSubscription: React.FC = () => {
     }, 1500);
   };
   
-  // Mock AI extraction (would be replaced with actual AI service in real app)
+  // Improved AI extraction with better pattern matching
   const mockAIExtraction = (transcript: string): Partial<Subscription> => {
+    console.log("Running AI extraction on:", transcript);
     const lowercased = transcript.toLowerCase();
     
     // Very basic pattern matching for demo
     let extracted: Partial<Subscription> = {};
     
-    // Try to extract name
-    for (const service of ['netflix', 'spotify', 'hulu', 'disney', 'adobe', 'amazon prime']) {
-      if (lowercased.includes(service)) {
-        extracted.name = service.charAt(0).toUpperCase() + service.slice(1);
-        
-        // Add mock provider based on name
-        if (service === 'netflix') extracted.provider = 'Netflix, Inc.';
-        if (service === 'spotify') extracted.provider = 'Spotify AB';
-        if (service === 'hulu') extracted.provider = 'Hulu, LLC';
-        if (service === 'disney') extracted.provider = 'Disney';
-        if (service === 'adobe') extracted.provider = 'Adobe Inc.';
-        if (service === 'amazon prime') extracted.provider = 'Amazon.com, Inc.';
-        
+    // More explicit pattern matching for service names
+    const servicePatterns = [
+      { pattern: /netflix/i, name: 'Netflix', provider: 'Netflix, Inc.' },
+      { pattern: /spotify/i, name: 'Spotify', provider: 'Spotify AB' },
+      { pattern: /hulu/i, name: 'Hulu', provider: 'Hulu, LLC' },
+      { pattern: /disney(\s|plus|\+)/i, name: 'Disney+', provider: 'Disney' },
+      { pattern: /adobe/i, name: 'Adobe Creative Cloud', provider: 'Adobe Inc.' },
+      { pattern: /amazon(\s|prime)/i, name: 'Amazon Prime', provider: 'Amazon.com, Inc.' },
+      { pattern: /youtube(\s|premium)/i, name: 'YouTube Premium', provider: 'Google LLC' },
+      { pattern: /apple(\s|music)/i, name: 'Apple Music', provider: 'Apple Inc.' },
+      { pattern: /hbo(\s|max)/i, name: 'HBO Max', provider: 'WarnerMedia' }
+    ];
+    
+    // Check for service name matches
+    for (const service of servicePatterns) {
+      if (service.pattern.test(lowercased)) {
+        extracted.name = service.name;
+        extracted.provider = service.provider;
         break;
       }
     }
     
-    // Try to extract price
-    const priceMatch = lowercased.match(/(\$?\d+(\.\d{1,2})?)/);
+    // Try to extract custom name if no match found
+    if (!extracted.name) {
+      const nameMatch = lowercased.match(/subscription(?:\s+for)?\s+([a-z0-9\s]+?)(?:\s+for|from|costs|is|at|with|$)/i);
+      if (nameMatch && nameMatch[1]) {
+        const name = nameMatch[1].trim();
+        extracted.name = name.charAt(0).toUpperCase() + name.slice(1);
+      }
+    }
+    
+    // Try to extract custom provider
+    const providerMatch = lowercased.match(/(?:from|by|provider|with)\s+([a-z0-9\s]+?)(?:\s+for|costs|is|at|$)/i);
+    if (providerMatch && providerMatch[1] && !extracted.provider) {
+      const provider = providerMatch[1].trim();
+      extracted.provider = provider.charAt(0).toUpperCase() + provider.slice(1);
+    }
+    
+    // Try to extract price with improved pattern
+    const priceMatch = lowercased.match(/(\$?\d+(\.\d{1,2})?)\s*(?:dollars|usd|per|a|\/)/i);
     if (priceMatch) {
-      const priceStr = priceMatch[0].replace('$', '');
+      const priceStr = priceMatch[1].replace('$', '');
       extracted.price = parseFloat(priceStr);
     }
     
-    // Try to extract billing cycle
-    if (lowercased.includes('month') || lowercased.includes('monthly')) {
+    // Try to extract billing cycle with more patterns
+    if (/(month|monthly|per month|each month)/i.test(lowercased)) {
       extracted.cycle = 'monthly';
-    } else if (lowercased.includes('year') || lowercased.includes('annual')) {
+    } else if (/(year|yearly|annual|annually|per year)/i.test(lowercased)) {
       extracted.cycle = 'yearly';
-    } else if (lowercased.includes('week') || lowercased.includes('weekly')) {
+    } else if (/(week|weekly|per week|each week)/i.test(lowercased)) {
       extracted.cycle = 'weekly';
     }
     
-    // Try to extract category
+    // Try to extract category with more accurate matching
     for (const category of categories) {
-      if (lowercased.includes(category.value)) {
+      if (lowercased.includes(category.value) || 
+          (category.value === 'entertainment' && /(movie|stream|watch|show)/i.test(lowercased)) ||
+          (category.value === 'productivity' && /(work|office|document)/i.test(lowercased)) ||
+          (category.value === 'social' && /(network|media|chat)/i.test(lowercased))) {
         extracted.category = category.value;
         break;
       }
     }
     
-    // Try to extract trial information
-    if (lowercased.includes('trial') || lowercased.includes('free')) {
-      const trialDaysMatch = lowercased.match(/(\d+)[\s-]*day/);
+    // Try to extract trial information with improved pattern
+    if (/(trial|free|days|for free)/i.test(lowercased)) {
+      const trialDaysMatch = lowercased.match(/(\d+)[\s-]*(day|days|week|weeks|month|months)/i);
       if (trialDaysMatch) {
-        const trialDays = parseInt(trialDaysMatch[1]);
+        const trialValue = parseInt(trialDaysMatch[1]);
+        const trialUnit = trialDaysMatch[2].toLowerCase();
+        
         const trialDate = new Date();
-        trialDate.setDate(trialDate.getDate() + trialDays);
+        if (trialUnit.includes('day')) {
+          trialDate.setDate(trialDate.getDate() + trialValue);
+        } else if (trialUnit.includes('week')) {
+          trialDate.setDate(trialDate.getDate() + (trialValue * 7));
+        } else if (trialUnit.includes('month')) {
+          trialDate.setMonth(trialDate.getMonth() + trialValue);
+        }
+        
         extracted.trialEndDate = trialDate;
       }
     }
     
+    console.log("Extraction result:", extracted);
     return extracted;
   };
   
@@ -227,6 +267,11 @@ const AddSubscription: React.FC = () => {
     return colors[Math.floor(Math.random() * colors.length)];
   };
   
+  // For debugging purposes
+  useEffect(() => {
+    console.log("Current subscription state:", subscription);
+  }, [subscription]);
+  
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">
       <header className="mb-8">
@@ -266,7 +311,7 @@ const AddSubscription: React.FC = () => {
             onResult={handleVoiceInput}
             listening={listening}
             onListeningChange={setListening}
-            placeholder="Describe your subscription with voice..."
+            placeholder="Describe your subscription with voice... (e.g., 'Netflix for $15.99 monthly')"
             className="mb-6"
           />
           
