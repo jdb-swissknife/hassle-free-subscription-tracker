@@ -26,11 +26,12 @@ import {
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Subscription, SubscriptionCategory } from '@/lib/types';
 import VoiceInput from '@/components/VoiceInput';
-import { format } from 'date-fns';
+import { format, addDays, addWeeks, addMonths } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
@@ -96,9 +97,17 @@ const AddSubscription: React.FC = () => {
         return newData;
       });
       
+      // Update start date if present in extracted data
+      if (extractedData.startDate) {
+        setStartDate(extractedData.startDate);
+        console.log("Setting start date:", extractedData.startDate);
+      }
+      
+      // Update trial information if present in extracted data
       if (extractedData.trialEndDate) {
         setHasTrial(true);
         setTrialEndDate(extractedData.trialEndDate);
+        console.log("Setting trial end date:", extractedData.trialEndDate);
       }
       
       setProcessingVoice(false);
@@ -179,23 +188,72 @@ const AddSubscription: React.FC = () => {
       }
     }
     
+    // Try to extract start date
+    const startDateRegexes = [
+      /start(?:s|ed|ing)?\s+(?:on|at|from)?\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)/i,
+      /begin(?:s|ning)?\s+(?:on|at|from)?\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)/i,
+      /(?:from|on)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)/i
+    ];
+    
+    for (const regex of startDateRegexes) {
+      const startDateMatch = lowercased.match(regex);
+      if (startDateMatch && startDateMatch[1]) {
+        try {
+          // Try to parse the date string - this is a simplified approach
+          // In a real app, you would use a more robust date parsing library
+          const dateStr = startDateMatch[1];
+          const dateObj = new Date(dateStr);
+          if (!isNaN(dateObj.getTime())) {
+            extracted.startDate = dateObj;
+            break;
+          }
+        } catch (e) {
+          console.log("Error parsing start date:", e);
+        }
+      }
+    }
+    
+    // If no specific start date found, look for relative dates
+    if (!extracted.startDate) {
+      if (/start(?:s|ed|ing)?\s+today/i.test(lowercased)) {
+        extracted.startDate = new Date();
+      } else if (/start(?:s|ed|ing)?\s+tomorrow/i.test(lowercased)) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        extracted.startDate = tomorrow;
+      } else if (/start(?:s|ed|ing)?\s+next\s+week/i.test(lowercased)) {
+        extracted.startDate = addWeeks(new Date(), 1);
+      } else if (/start(?:s|ed|ing)?\s+next\s+month/i.test(lowercased)) {
+        extracted.startDate = addMonths(new Date(), 1);
+      }
+    }
+    
     // Try to extract trial information with improved pattern
     if (/(trial|free|days|for free)/i.test(lowercased)) {
-      const trialDaysMatch = lowercased.match(/(\d+)[\s-]*(day|days|week|weeks|month|months)/i);
+      const trialDaysMatch = lowercased.match(/(\d+)[\s-]*(day|days|week|weeks|month|months)(?:\s+(?:free|trial))/i);
+      
       if (trialDaysMatch) {
         const trialValue = parseInt(trialDaysMatch[1]);
         const trialUnit = trialDaysMatch[2].toLowerCase();
         
-        const trialDate = new Date();
+        const startDateToUse = extracted.startDate || new Date();
+        let trialDate;
+        
         if (trialUnit.includes('day')) {
-          trialDate.setDate(trialDate.getDate() + trialValue);
+          trialDate = addDays(startDateToUse, trialValue);
         } else if (trialUnit.includes('week')) {
-          trialDate.setDate(trialDate.getDate() + (trialValue * 7));
+          trialDate = addWeeks(startDateToUse, trialValue);
         } else if (trialUnit.includes('month')) {
-          trialDate.setMonth(trialDate.getMonth() + trialValue);
+          trialDate = addMonths(startDateToUse, trialValue);
         }
         
-        extracted.trialEndDate = trialDate;
+        if (trialDate) {
+          extracted.trialEndDate = trialDate;
+        }
+      } else if (/has\s+(?:a\s+)?(?:free\s+)?trial/i.test(lowercased)) {
+        // If trial is mentioned but no specific duration, default to 7 days
+        const startDateToUse = extracted.startDate || new Date();
+        extracted.trialEndDate = addDays(startDateToUse, 7);
       }
     }
     
@@ -270,7 +328,10 @@ const AddSubscription: React.FC = () => {
   // For debugging purposes
   useEffect(() => {
     console.log("Current subscription state:", subscription);
-  }, [subscription]);
+    console.log("Current start date:", startDate);
+    console.log("Has trial:", hasTrial);
+    console.log("Trial end date:", trialEndDate);
+  }, [subscription, startDate, hasTrial, trialEndDate]);
   
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">
@@ -290,13 +351,13 @@ const AddSubscription: React.FC = () => {
         <div className="glass-card overflow-hidden mb-6">
           <div className="flex items-center border-b border-border">
             <div 
-              className={`flex-1 text-center py-3 ${step === 1 ? 'bg-primary/10 border-b-2 border-primary' : ''}`}
+              className={`flex-1 text-center py-3 cursor-pointer ${step === 1 ? 'bg-primary/10 border-b-2 border-primary' : ''}`}
               onClick={() => step > 1 && setStep(1)}
             >
               Details
             </div>
             <div 
-              className={`flex-1 text-center py-3 ${step === 2 ? 'bg-primary/10 border-b-2 border-primary' : ''}`}
+              className={`flex-1 text-center py-3 cursor-pointer ${step === 2 ? 'bg-primary/10 border-b-2 border-primary' : ''}`}
               onClick={() => step < 2 && isStepValid() && setStep(2)}
             >
               Settings
@@ -311,7 +372,7 @@ const AddSubscription: React.FC = () => {
             onResult={handleVoiceInput}
             listening={listening}
             onListeningChange={setListening}
-            placeholder="Describe your subscription with voice... (e.g., 'Netflix for $15.99 monthly')"
+            placeholder="Describe your subscription with voice... (e.g., 'Netflix for $15.99 monthly starting next week with a 30-day trial')"
             className="mb-6"
           />
           
@@ -435,14 +496,13 @@ const AddSubscription: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     id="hasTrial"
                     checked={hasTrial}
-                    onChange={e => setHasTrial(e.target.checked)}
-                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                    onCheckedChange={(checked) => setHasTrial(checked === true)}
+                    className="rounded text-primary focus:ring-primary"
                   />
-                  <Label htmlFor="hasTrial">This subscription has a free trial</Label>
+                  <Label htmlFor="hasTrial" className="cursor-pointer">This subscription has a free trial</Label>
                 </div>
                 
                 {hasTrial && (
