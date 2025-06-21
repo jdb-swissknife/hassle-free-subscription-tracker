@@ -26,9 +26,7 @@ const Index: React.FC = () => {
         <main className="flex-grow">
           <section className="py-20 md:py-32 relative">
             <FloatingText text="XYZ.com $19.00/month" color="#8B5CF6" speed={0.1} size="md" />
-            <FloatingText text="ABC.io $29.99/month" color="#0EA5E9" speed={0.15} size="md" />
             <FloatingText text="StreamFlix $14.99/month" color="#F97316" speed={0.12} size="sm" />
-            <FloatingText text="MusicLoop $9.99/month" color="#D946EF" speed={0.08} size="sm" />
             <FloatingText text="CloudStore $5.00/month" color="#0EA5E9" speed={0.11} size="md" />
             <FloatingText text="NewsDaily $7.50/month" color="#8B5CF6" speed={0.09} size="lg" />
             
