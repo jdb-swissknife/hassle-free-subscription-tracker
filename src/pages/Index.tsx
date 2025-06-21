@@ -30,6 +30,16 @@ const Index: React.FC = () => {
             <FloatingText text="CloudStore $5.00/month" color="#0EA5E9" speed={0.11} size="md" />
             <FloatingText text="NewsDaily $7.50/month" color="#8B5CF6" speed={0.09} size="lg" />
             
+            {/* Centered AI Agents Header - Mobile/Tablet */}
+            <div className="flex justify-center items-center gap-4 mb-8 md:hidden">
+              <div className="w-20 sm:w-24">
+                <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
+              </div>
+              <div className="w-20 sm:w-24">
+                <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
+              </div>
+            </div>
+            
             <div className="container max-w-7xl mx-auto px-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 relative">
@@ -55,7 +65,8 @@ const Index: React.FC = () => {
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  <div className="absolute top-[-180px] right-[525px] z-10 w-[200px]">
+                  {/* Desktop AI Agents - positioned as before */}
+                  <div className="hidden md:block absolute top-[-180px] right-[525px] z-10 w-[200px]">
                     <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
                   </div>
                   <div className="relative">
@@ -68,12 +79,12 @@ const Index: React.FC = () => {
                     }} />
                     </div>
                   </div>
+                  {/* Desktop SubLedger Agent */}
+                  <div className="hidden md:block absolute bottom-[20px] left-[calc(34%+50px)] z-10 w-[140px]">
+                    <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="absolute bottom-[20px] left-[calc(34%+50px)] z-10 w-[140px]">
-              <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
             </div>
           </section>
           
