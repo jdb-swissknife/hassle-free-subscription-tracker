@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -59,21 +58,6 @@ const Index: React.FC = () => {
                 </div>
                 
                 <div className="order-first md:order-last relative">
-                  {/* Mobile/Tablet: Centered AI agents in header */}
-                  <div className="md:hidden flex justify-center items-center gap-8 mb-8">
-                    <div className="w-24 h-24">
-                      <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="w-20 h-20">
-                      <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-full object-contain" />
-                    </div>
-                  </div>
-                  
-                  {/* Desktop: Original positioning */}
-                  <div className="hidden md:block absolute top-[-180px] right-[525px] z-10 w-[200px]">
-                    <img src="/lovable-uploads/e10d332d-84b8-40ec-b7c2-1052a7f181a9.png" alt="SubSnipe Agent" className="w-full h-auto object-contain" />
-                  </div>
-                  
                   <div className="relative">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary rounded-2xl blur-lg opacity-50"></div>
                     <div className="glass-card p-6 relative rounded-2xl overflow-hidden border border-white/20">
@@ -88,11 +72,6 @@ const Index: React.FC = () => {
                         }} 
                       />
                     </div>
-                  </div>
-                  
-                  {/* Desktop: Original positioning */}
-                  <div className="hidden md:block absolute bottom-[20px] left-[calc(34%+50px)] z-10 w-[140px]">
-                    <img src="/lovable-uploads/9ae4b7af-790c-448b-a8a1-64848152e948.png" alt="SubLedger Agent" className="w-full h-auto object-contain" />
                   </div>
                 </div>
               </div>
