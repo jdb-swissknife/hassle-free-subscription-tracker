@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
   CheckCircle, 
   AlertCircle, 
   Clock, 
-  Trash2,
-  MarkAsUnread
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

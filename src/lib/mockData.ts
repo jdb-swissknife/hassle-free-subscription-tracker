@@ -123,6 +123,7 @@ export const mockUserSettings: UserSettings = {
     email: true,
     push: true,
     inApp: true,
+    sms: false,
   },
   defaultNotifications: [
     {
