@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
@@ -9,10 +8,12 @@ import {
   Clock,
   Trash2,
   Edit,
-  AlertCircle
+  AlertCircle,
+  Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { CalendarService } from '@/services/calendarService';
 import { format, differenceInDays, addDays } from 'date-fns';
 import {
   Dialog,
@@ -35,6 +36,7 @@ const SubscriptionDetail: React.FC = () => {
     deleteSubscription
   } = useSubscriptions();
   
+  const calendarService = CalendarService.getInstance();
   const subscription = getSubscription(id || '');
   
   if (!subscription) {
@@ -84,11 +86,9 @@ const SubscriptionDetail: React.FC = () => {
   const trialDaysLeft = trialEndDate ? differenceInDays(new Date(trialEndDate), today) : null;
   const inTrial = trialDaysLeft !== null && trialDaysLeft >= 0;
   
-  // Calculate next billing date
   const calculateNextBillingDate = () => {
     let nextDate = new Date(startDate);
     
-    // If there's a trial, first payment is after trial
     if (inTrial) {
       return new Date(trialEndDate!);
     }
@@ -124,6 +124,11 @@ const SubscriptionDetail: React.FC = () => {
     deleteSubscription(id || '');
     navigate('/dashboard');
   };
+
+  const handleDownloadCalendar = () => {
+    calendarService.downloadSubscriptionCalendar(subscription);
+    toast.success('Calendar file downloaded successfully!');
+  };
   
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 min-h-screen">
@@ -143,6 +148,16 @@ const SubscriptionDetail: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <div className="text-muted-foreground">{provider}</div>
           <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="gap-1"
+              onClick={handleDownloadCalendar}
+            >
+              <Download className="h-4 w-4" />
+              Calendar
+            </Button>
+            
             <Button 
               variant="outline" 
               size="sm"
@@ -303,6 +318,8 @@ const SubscriptionDetail: React.FC = () => {
                       {notification.type === 'payment-upcoming' && 'Payment Reminder'}
                       {notification.type === 'subscription-renewal' && 'Renewal Reminder'}
                       {notification.type === 'price-change' && 'Price Change Alert'}
+                      {notification.type === 'payment-failure' && 'Payment Failure Alert'}
+                      {notification.type === 'subscription-change' && 'Subscription Change'}
                       {notification.type === 'custom' && 'Custom Alert'}
                     </div>
                     <div className="text-xs">

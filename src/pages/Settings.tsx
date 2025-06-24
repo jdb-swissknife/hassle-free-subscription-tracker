@@ -1,19 +1,40 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, CheckCircle, Moon, SunMedium, Laptop } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Bell, 
+  CheckCircle, 
+  Moon, 
+  SunMedium, 
+  Laptop,
+  Phone,
+  Calendar,
+  Download,
+  Globe
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { mockUserSettings } from '@/lib/mockData';
 import { UserSettings, NotificationSetting } from '@/lib/types';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { CalendarService } from '@/services/calendarService';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState<UserSettings>(mockUserSettings);
+  const [settings, setSettings] = useState<UserSettings>({
+    ...mockUserSettings,
+    phoneNumber: mockUserSettings.phoneNumber || '',
+    timezone: mockUserSettings.timezone || 'America/New_York'
+  });
+  
+  const { subscriptions } = useSubscriptions();
+  const calendarService = CalendarService.getInstance();
   
   const handleNotificationToggle = (id: string, enabled: boolean) => {
     setSettings(prev => ({
@@ -55,6 +76,31 @@ const Settings: React.FC = () => {
       ...prev,
       currency
     }));
+  };
+
+  const handlePhoneNumberChange = (phoneNumber: string) => {
+    setSettings(prev => ({
+      ...prev,
+      phoneNumber
+    }));
+  };
+
+  const handleTimezoneChange = (timezone: string) => {
+    setSettings(prev => ({
+      ...prev,
+      timezone
+    }));
+  };
+
+  const handleDownloadAllCalendar = () => {
+    const activeSubscriptions = subscriptions.filter(sub => sub.active);
+    if (activeSubscriptions.length === 0) {
+      toast.error('No active subscriptions to export');
+      return;
+    }
+    
+    calendarService.downloadBulkCalendar(activeSubscriptions, 12);
+    toast.success('Calendar file downloaded successfully!');
   };
   
   const handleSave = () => {
@@ -124,6 +170,34 @@ const Settings: React.FC = () => {
                 onCheckedChange={(checked) => handlePreferenceToggle('inApp', checked)}
               />
             </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="sms-notifications" className="flex-grow">SMS Notifications</Label>
+              <Switch
+                id="sms-notifications"
+                checked={settings.notificationPreference.sms}
+                onCheckedChange={(checked) => handlePreferenceToggle('sms', checked)}
+              />
+            </div>
+
+            {settings.notificationPreference.sms && (
+              <div className="ml-4 space-y-2">
+                <Label htmlFor="phone-number" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone-number"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  value={settings.phoneNumber || ''}
+                  onChange={(e) => handlePhoneNumberChange(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  SMS notifications require explicit consent and will only be used for critical alerts.
+                </p>
+              </div>
+            )}
           </div>
           
           <Separator className="my-6" />
@@ -142,7 +216,13 @@ const Settings: React.FC = () => {
                       ? 'Trial Expiration Alerts'
                       : notification.type === 'payment-upcoming'
                       ? 'Payment Reminders'
-                      : 'Subscription Renewal Alerts'}
+                      : notification.type === 'subscription-renewal'
+                      ? 'Subscription Renewal Alerts'
+                      : notification.type === 'payment-failure'
+                      ? 'Payment Failure Alerts'
+                      : notification.type === 'price-change'
+                      ? 'Price Change Notifications'
+                      : 'Custom Notifications'}
                   </Label>
                   <Switch
                     id={`notification-${notification.id}`}
@@ -174,6 +254,48 @@ const Settings: React.FC = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="glass-card p-6">
+          <h2 className="text-xl font-medium mb-4 flex items-center">
+            <Calendar className="h-5 w-5 mr-2 text-primary" />
+            Calendar Integration
+          </h2>
+          
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-medium mb-2">Export Subscription Calendar</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Download your subscription renewals and payment dates as a calendar file that you can import into Google Calendar, Outlook, or Apple Calendar.
+              </p>
+              
+              <Button
+                onClick={handleDownloadAllCalendar}
+                className="flex items-center gap-2"
+                disabled={subscriptions.filter(sub => sub.active).length === 0}
+              >
+                <Download className="h-4 w-4" />
+                Download Calendar (.ics)
+              </Button>
+              
+              {subscriptions.filter(sub => sub.active).length === 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Add some active subscriptions to export their calendar events.
+                </p>
+              )}
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-medium mb-2">How to Import</h3>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p><strong>Google Calendar:</strong> Go to Settings → Import & Export → Import</p>
+                <p><strong>Outlook:</strong> File → Open & Export → Import/Export → Import an iCalendar file</p>
+                <p><strong>Apple Calendar:</strong> File → Import → Select the .ics file</p>
+              </div>
+            </div>
           </div>
         </section>
         
@@ -214,6 +336,31 @@ const Settings: React.FC = () => {
                   <SelectItem value="JPY">JPY (¥)</SelectItem>
                   <SelectItem value="CAD">CAD ($)</SelectItem>
                   <SelectItem value="AUD">AUD ($)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="timezone-select" className="block mb-2 flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                Timezone
+              </Label>
+              <Select
+                value={settings.timezone}
+                onValueChange={handleTimezoneChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                  <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                  <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                  <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                  <SelectItem value="Europe/London">London Time (GMT)</SelectItem>
+                  <SelectItem value="Europe/Paris">Central European Time (CET)</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Japan Time (JST)</SelectItem>
+                  <SelectItem value="Australia/Sydney">Australian Eastern Time (AET)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
