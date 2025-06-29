@@ -219,22 +219,22 @@ const AddSubscription: React.FC = () => {
     // Enhanced start date parsing
     const today = new Date();
     
-    // Relative date patterns
+    // Relative date patterns - Fixed the type issue
     const relativeDatePatterns = [
-      { pattern: /start(?:s|ed|ing)?\s+today/i, date: () => new Date() },
-      { pattern: /start(?:s|ed|ing)?\s+tomorrow/i, date: () => addDays(new Date(), 1) },
-      { pattern: /start(?:s|ed|ing)?\s+next\s+week/i, date: () => addWeeks(new Date(), 1) },
-      { pattern: /start(?:s|ed|ing)?\s+next\s+month/i, date: () => addMonths(new Date(), 1) },
-      { pattern: /(?:in|after)\s+(\d+)\s+days?/i, date: (match: RegExpMatchArray) => addDays(new Date(), parseInt(match[1])) },
-      { pattern: /(?:in|after)\s+(\d+)\s+weeks?/i, date: (match: RegExpMatchArray) => addWeeks(new Date(), parseInt(match[1])) },
-      { pattern: /(?:in|after)\s+(\d+)\s+months?/i, date: (match: RegExpMatchArray) => addMonths(new Date(), parseInt(match[1])) },
+      { pattern: /start(?:s|ed|ing)?\s+today/i, dateGetter: () => new Date() },
+      { pattern: /start(?:s|ed|ing)?\s+tomorrow/i, dateGetter: () => addDays(new Date(), 1) },
+      { pattern: /start(?:s|ed|ing)?\s+next\s+week/i, dateGetter: () => addWeeks(new Date(), 1) },
+      { pattern: /start(?:s|ed|ing)?\s+next\s+month/i, dateGetter: () => addMonths(new Date(), 1) },
+      { pattern: /(?:in|after)\s+(\d+)\s+days?/i, dateGetter: (match: RegExpMatchArray) => addDays(new Date(), parseInt(match[1])) },
+      { pattern: /(?:in|after)\s+(\d+)\s+weeks?/i, dateGetter: (match: RegExpMatchArray) => addWeeks(new Date(), parseInt(match[1])) },
+      { pattern: /(?:in|after)\s+(\d+)\s+months?/i, dateGetter: (match: RegExpMatchArray) => addMonths(new Date(), parseInt(match[1])) },
     ];
     
-    for (const { pattern, date } of relativeDatePatterns) {
+    for (const { pattern, dateGetter } of relativeDatePatterns) {
       const match = lowercased.match(pattern);
       if (match) {
         try {
-          extracted.startDate = typeof date === 'function' ? date(match) : date();
+          extracted.startDate = dateGetter(match);
           break;
         } catch (e) {
           console.log("Error parsing relative date:", e);
@@ -259,31 +259,31 @@ const AddSubscription: React.FC = () => {
         const dateMatch = transcript.match(pattern);
         if (dateMatch && dateMatch[1]) {
           try {
-            let dateStr = dateMatch[1].trim();
+            let dateString = dateMatch[1].trim();
             
             // Clean up ordinal numbers (1st, 2nd, 3rd, 4th)
-            dateStr = dateStr.replace(/(\d+)(?:st|nd|rd|th)/g, '$1');
+            dateString = dateString.replace(/(\d+)(?:st|nd|rd|th)/g, '$1');
             
             // Try different date parsing approaches
             let parsedDate;
             
             // Try with current year if no year specified
-            if (!/\d{4}/.test(dateStr)) {
-              parsedDate = parse(dateStr + ` ${today.getFullYear()}`, 'MMMM d yyyy', new Date());
+            if (!/\d{4}/.test(dateString)) {
+              parsedDate = parse(dateString + ` ${today.getFullYear()}`, 'MMMM d yyyy', new Date());
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateStr + ` ${today.getFullYear()}`, 'MMM d yyyy', new Date());
+                parsedDate = parse(dateString + ` ${today.getFullYear()}`, 'MMM d yyyy', new Date());
               }
             } else {
               // Has year
-              parsedDate = parse(dateStr, 'MMMM d yyyy', new Date());
+              parsedDate = parse(dateString, 'MMMM d yyyy', new Date());
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateStr, 'MMM d yyyy', new Date());
+                parsedDate = parse(dateString, 'MMM d yyyy', new Date());
               }
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateStr, 'M/d/yyyy', new Date());
+                parsedDate = parse(dateString, 'M/d/yyyy', new Date());
               }
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateStr, 'M/d/yy', new Date());
+                parsedDate = parse(dateString, 'M/d/yy', new Date());
               }
             }
             
@@ -296,7 +296,7 @@ const AddSubscription: React.FC = () => {
               break;
             }
           } catch (e) {
-            console.log("Error parsing specific date:", dateStr, e);
+            console.log("Error parsing specific date:", dateString, e);
           }
         }
       }
