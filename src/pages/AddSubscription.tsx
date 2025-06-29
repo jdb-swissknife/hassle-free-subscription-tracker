@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -26,7 +25,7 @@ import {
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Subscription, SubscriptionCategory } from '@/lib/types';
 import VoiceInput from '@/components/VoiceInput';
-import { format, addDays, addWeeks, addMonths } from 'date-fns';
+import { format, addDays, addWeeks, addMonths, parse, isValid } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -83,7 +82,6 @@ const AddSubscription: React.FC = () => {
     
     // Extract data from voice input
     setTimeout(() => {
-      // Example mock AI extraction
       const extractedData = mockAIExtraction(transcript);
       console.log("Extracted data:", extractedData);
       
@@ -115,15 +113,15 @@ const AddSubscription: React.FC = () => {
     }, 1500);
   };
   
-  // Improved AI extraction with better pattern matching
+  // Improved AI extraction that's more literal and better at parsing dates
   const mockAIExtraction = (transcript: string): Partial<Subscription> => {
     console.log("Running AI extraction on:", transcript);
     const lowercased = transcript.toLowerCase();
     
-    // Very basic pattern matching for demo
     let extracted: Partial<Subscription> = {};
     
-    // More explicit pattern matching for service names
+    // More literal approach - extract company names as spoken
+    // First check for common service patterns, but if not found, be more literal
     const servicePatterns = [
       { pattern: /netflix/i, name: 'Netflix', provider: 'Netflix, Inc.' },
       { pattern: /spotify/i, name: 'Spotify', provider: 'Spotify AB' },
@@ -133,131 +131,218 @@ const AddSubscription: React.FC = () => {
       { pattern: /amazon(\s|prime)/i, name: 'Amazon Prime', provider: 'Amazon.com, Inc.' },
       { pattern: /youtube(\s|premium)/i, name: 'YouTube Premium', provider: 'Google LLC' },
       { pattern: /apple(\s|music)/i, name: 'Apple Music', provider: 'Apple Inc.' },
-      { pattern: /hbo(\s|max)/i, name: 'HBO Max', provider: 'WarnerMedia' }
+      { pattern: /microsoft(\s|office|365)/i, name: 'Microsoft 365', provider: 'Microsoft Corporation' },
+      { pattern: /google(\s|one|drive)/i, name: 'Google One', provider: 'Google LLC' },
+      { pattern: /dropbox/i, name: 'Dropbox', provider: 'Dropbox, Inc.' },
     ];
     
-    // Check for service name matches
+    // Check for known services first
+    let foundKnownService = false;
     for (const service of servicePatterns) {
       if (service.pattern.test(lowercased)) {
         extracted.name = service.name;
         extracted.provider = service.provider;
+        foundKnownService = true;
         break;
       }
     }
     
-    // Try to extract custom name if no match found
-    if (!extracted.name) {
-      const nameMatch = lowercased.match(/subscription(?:\s+for)?\s+([a-z0-9\s]+?)(?:\s+for|from|costs|is|at|with|$)/i);
-      if (nameMatch && nameMatch[1]) {
-        const name = nameMatch[1].trim();
-        extracted.name = name.charAt(0).toUpperCase() + name.slice(1);
-      }
-    }
-    
-    // Try to extract custom provider
-    const providerMatch = lowercased.match(/(?:from|by|provider|with)\s+([a-z0-9\s]+?)(?:\s+for|costs|is|at|$)/i);
-    if (providerMatch && providerMatch[1] && !extracted.provider) {
-      const provider = providerMatch[1].trim();
-      extracted.provider = provider.charAt(0).toUpperCase() + provider.slice(1);
-    }
-    
-    // Try to extract price with improved pattern
-    const priceMatch = lowercased.match(/(\$?\d+(\.\d{1,2})?)\s*(?:dollars|usd|per|a|\/)/i);
-    if (priceMatch) {
-      const priceStr = priceMatch[1].replace('$', '');
-      extracted.price = parseFloat(priceStr);
-    }
-    
-    // Try to extract billing cycle with more patterns
-    if (/(month|monthly|per month|each month)/i.test(lowercased)) {
-      extracted.cycle = 'monthly';
-    } else if (/(year|yearly|annual|annually|per year)/i.test(lowercased)) {
-      extracted.cycle = 'yearly';
-    } else if (/(week|weekly|per week|each week)/i.test(lowercased)) {
-      extracted.cycle = 'weekly';
-    }
-    
-    // Try to extract category with more accurate matching
-    for (const category of categories) {
-      if (lowercased.includes(category.value) || 
-          (category.value === 'entertainment' && /(movie|stream|watch|show)/i.test(lowercased)) ||
-          (category.value === 'productivity' && /(work|office|document)/i.test(lowercased)) ||
-          (category.value === 'social' && /(network|media|chat)/i.test(lowercased))) {
-        extracted.category = category.value;
-        break;
-      }
-    }
-    
-    // Try to extract start date
-    const startDateRegexes = [
-      /start(?:s|ed|ing)?\s+(?:on|at|from)?\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)/i,
-      /begin(?:s|ning)?\s+(?:on|at|from)?\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)/i,
-      /(?:from|on)\s+(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)/i
-    ];
-    
-    for (const regex of startDateRegexes) {
-      const startDateMatch = lowercased.match(regex);
-      if (startDateMatch && startDateMatch[1]) {
-        try {
-          // Try to parse the date string - this is a simplified approach
-          // In a real app, you would use a more robust date parsing library
-          const dateStr = startDateMatch[1];
-          const dateObj = new Date(dateStr);
-          if (!isNaN(dateObj.getTime())) {
-            extracted.startDate = dateObj;
+    // If no known service found, be more literal with what was said
+    if (!foundKnownService) {
+      // Extract any capitalized words or quoted content as potential service names
+      const namePatterns = [
+        /(?:subscription\s+(?:for|to)\s+)([a-z0-9\s&]+?)(?:\s+(?:for|costs|is|at|starting|begins))/i,
+        /(?:for\s+)([a-z0-9\s&]+?)(?:\s+(?:subscription|service|app))/i,
+        /(?:^|\s)([A-Z][a-z0-9]*(?:\s+[A-Z][a-z0-9]*)*)/g, // Capitalized words
+      ];
+      
+      for (const pattern of namePatterns) {
+        const match = transcript.match(pattern);
+        if (match && match[1]) {
+          const name = match[1].trim();
+          if (name.length > 1 && name.length < 50) { // Reasonable name length
+            extracted.name = name;
+            extracted.provider = name; // Use same for provider initially
             break;
           }
-        } catch (e) {
-          console.log("Error parsing start date:", e);
         }
       }
     }
     
-    // If no specific start date found, look for relative dates
-    if (!extracted.startDate) {
-      if (/start(?:s|ed|ing)?\s+today/i.test(lowercased)) {
-        extracted.startDate = new Date();
-      } else if (/start(?:s|ed|ing)?\s+tomorrow/i.test(lowercased)) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        extracted.startDate = tomorrow;
-      } else if (/start(?:s|ed|ing)?\s+next\s+week/i.test(lowercased)) {
-        extracted.startDate = addWeeks(new Date(), 1);
-      } else if (/start(?:s|ed|ing)?\s+next\s+month/i.test(lowercased)) {
-        extracted.startDate = addMonths(new Date(), 1);
+    // Improved price extraction with more patterns
+    const pricePatterns = [
+      /(\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\s*(?:per|a|each|\/)/i,
+      /\$(\d+(?:\.\d{1,2})?)\s*(?:per|a|each|\/|for)/i,
+      /(\d+(?:\.\d{1,2})?)\s*(?:per|a|each|\/)/i,
+      /costs?\s*(\d+(?:\.\d{1,2})?)/i,
+      /price\s*(?:is|of)?\s*(\d+(?:\.\d{1,2})?)/i,
+    ];
+    
+    for (const pattern of pricePatterns) {
+      const priceMatch = lowercased.match(pattern);
+      if (priceMatch && priceMatch[1]) {
+        const price = parseFloat(priceMatch[1]);
+        if (price > 0 && price < 10000) { // Reasonable price range
+          extracted.price = price;
+          break;
+        }
       }
     }
     
-    // Try to extract trial information with improved pattern
-    if (/(trial|free|days|for free)/i.test(lowercased)) {
-      const trialDaysMatch = lowercased.match(/(\d+)[\s-]*(day|days|week|weeks|month|months)(?:\s+(?:free|trial))/i);
+    // Billing cycle detection with more patterns
+    if (/(month|monthly|per month|each month|every month)/i.test(lowercased)) {
+      extracted.cycle = 'monthly';
+    } else if (/(year|yearly|annual|annually|per year|each year|every year)/i.test(lowercased)) {
+      extracted.cycle = 'yearly';
+    } else if (/(week|weekly|per week|each week|every week)/i.test(lowercased)) {
+      extracted.cycle = 'weekly';
+    }
+    
+    // Category detection with improved patterns
+    const categoryPatterns = [
+      { pattern: /(stream|streaming|movie|movies|tv|show|entertainment|watch)/i, category: 'entertainment' },
+      { pattern: /(work|office|document|productivity|suite)/i, category: 'productivity' },
+      { pattern: /(cloud|storage|backup|drive|utility)/i, category: 'utilities' },
+      { pattern: /(social|network|media|chat|messaging)/i, category: 'social' },
+      { pattern: /(lifestyle|living|home)/i, category: 'lifestyle' },
+      { pattern: /(health|fitness|medical|wellness)/i, category: 'health' },
+      { pattern: /(finance|financial|banking|money)/i, category: 'finance' },
+    ];
+    
+    for (const { pattern, category } of categoryPatterns) {
+      if (pattern.test(lowercased)) {
+        extracted.category = category as SubscriptionCategory;
+        break;
+      }
+    }
+    
+    // Enhanced start date parsing
+    const today = new Date();
+    
+    // Relative date patterns
+    const relativeDatePatterns = [
+      { pattern: /start(?:s|ed|ing)?\s+today/i, date: () => new Date() },
+      { pattern: /start(?:s|ed|ing)?\s+tomorrow/i, date: () => addDays(new Date(), 1) },
+      { pattern: /start(?:s|ed|ing)?\s+next\s+week/i, date: () => addWeeks(new Date(), 1) },
+      { pattern: /start(?:s|ed|ing)?\s+next\s+month/i, date: () => addMonths(new Date(), 1) },
+      { pattern: /(?:in|after)\s+(\d+)\s+days?/i, date: (match: RegExpMatchArray) => addDays(new Date(), parseInt(match[1])) },
+      { pattern: /(?:in|after)\s+(\d+)\s+weeks?/i, date: (match: RegExpMatchArray) => addWeeks(new Date(), parseInt(match[1])) },
+      { pattern: /(?:in|after)\s+(\d+)\s+months?/i, date: (match: RegExpMatchArray) => addMonths(new Date(), parseInt(match[1])) },
+    ];
+    
+    for (const { pattern, date } of relativeDatePatterns) {
+      const match = lowercased.match(pattern);
+      if (match) {
+        try {
+          extracted.startDate = typeof date === 'function' ? date(match) : date();
+          break;
+        } catch (e) {
+          console.log("Error parsing relative date:", e);
+        }
+      }
+    }
+    
+    // Specific date patterns - more comprehensive
+    if (!extracted.startDate) {
+      const specificDatePatterns = [
+        // Month Day, Year
+        /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{2,4})?)/i,
+        // Month Day
+        /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?)/i,
+        // Just month and day without keywords
+        /(\w+\s+\d{1,2}(?:st|nd|rd|th)?)(?:\s+(?:is|will be|starts?))/i,
+        // Numeric dates
+        /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)/i,
+      ];
       
-      if (trialDaysMatch) {
-        const trialValue = parseInt(trialDaysMatch[1]);
-        const trialUnit = trialDaysMatch[2].toLowerCase();
-        
+      for (const pattern of specificDatePatterns) {
+        const dateMatch = transcript.match(pattern);
+        if (dateMatch && dateMatch[1]) {
+          try {
+            let dateStr = dateMatch[1].trim();
+            
+            // Clean up ordinal numbers (1st, 2nd, 3rd, 4th)
+            dateStr = dateStr.replace(/(\d+)(?:st|nd|rd|th)/g, '$1');
+            
+            // Try different date parsing approaches
+            let parsedDate;
+            
+            // Try with current year if no year specified
+            if (!/\d{4}/.test(dateStr)) {
+              parsedDate = parse(dateStr + ` ${today.getFullYear()}`, 'MMMM d yyyy', new Date());
+              if (!isValid(parsedDate)) {
+                parsedDate = parse(dateStr + ` ${today.getFullYear()}`, 'MMM d yyyy', new Date());
+              }
+            } else {
+              // Has year
+              parsedDate = parse(dateStr, 'MMMM d yyyy', new Date());
+              if (!isValid(parsedDate)) {
+                parsedDate = parse(dateStr, 'MMM d yyyy', new Date());
+              }
+              if (!isValid(parsedDate)) {
+                parsedDate = parse(dateStr, 'M/d/yyyy', new Date());
+              }
+              if (!isValid(parsedDate)) {
+                parsedDate = parse(dateStr, 'M/d/yy', new Date());
+              }
+            }
+            
+            if (isValid(parsedDate)) {
+              // If parsed date is in the past, assume next year
+              if (parsedDate < today) {
+                parsedDate = addMonths(parsedDate, 12);
+              }
+              extracted.startDate = parsedDate;
+              break;
+            }
+          } catch (e) {
+            console.log("Error parsing specific date:", dateStr, e);
+          }
+        }
+      }
+    }
+    
+    // Trial information extraction - improved
+    const trialPatterns = [
+      /(\d+)[\s-]*(?:day|days)\s+(?:free\s+)?trial/i,
+      /(\d+)[\s-]*(?:week|weeks)\s+(?:free\s+)?trial/i,
+      /(\d+)[\s-]*(?:month|months)\s+(?:free\s+)?trial/i,
+      /(?:free\s+)?trial\s+(?:for\s+)?(\d+)\s+(?:day|days)/i,
+      /(?:free\s+)?trial\s+(?:for\s+)?(\d+)\s+(?:week|weeks)/i,
+      /(?:free\s+)?trial\s+(?:for\s+)?(\d+)\s+(?:month|months)/i,
+      /has\s+(?:a\s+)?(?:free\s+)?trial/i,
+    ];
+    
+    for (const pattern of trialPatterns) {
+      const trialMatch = lowercased.match(pattern);
+      if (trialMatch) {
         const startDateToUse = extracted.startDate || new Date();
         let trialDate;
         
-        if (trialUnit.includes('day')) {
-          trialDate = addDays(startDateToUse, trialValue);
-        } else if (trialUnit.includes('week')) {
-          trialDate = addWeeks(startDateToUse, trialValue);
-        } else if (trialUnit.includes('month')) {
-          trialDate = addMonths(startDateToUse, trialValue);
+        if (trialMatch[1]) {
+          const trialValue = parseInt(trialMatch[1]);
+          const patternStr = pattern.source.toLowerCase();
+          
+          if (patternStr.includes('day')) {
+            trialDate = addDays(startDateToUse, trialValue);
+          } else if (patternStr.includes('week')) {
+            trialDate = addWeeks(startDateToUse, trialValue);
+          } else if (patternStr.includes('month')) {
+            trialDate = addMonths(startDateToUse, trialValue);
+          }
+        } else {
+          // Generic trial mention without specific duration - default to 7 days
+          trialDate = addDays(startDateToUse, 7);
         }
         
         if (trialDate) {
           extracted.trialEndDate = trialDate;
+          break;
         }
-      } else if (/has\s+(?:a\s+)?(?:free\s+)?trial/i.test(lowercased)) {
-        // If trial is mentioned but no specific duration, default to 7 days
-        const startDateToUse = extracted.startDate || new Date();
-        extracted.trialEndDate = addDays(startDateToUse, 7);
       }
     }
     
-    console.log("Extraction result:", extracted);
+    console.log("Final extraction result:", extracted);
     return extracted;
   };
   
@@ -372,7 +457,7 @@ const AddSubscription: React.FC = () => {
             onResult={handleVoiceInput}
             listening={listening}
             onListeningChange={setListening}
-            placeholder="Describe your subscription with voice... (e.g., 'Netflix for $15.99 monthly starting next week with a 30-day trial')"
+            placeholder="Describe your subscription with voice... (e.g., 'Netflix for $15.99 monthly starting January 15th with a 30-day trial')"
             className="mb-6"
           />
           
