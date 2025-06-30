@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -5,7 +6,8 @@ import {
   Calendar,
   AlertCircle,
   Check,
-  Sparkles
+  Sparkles,
+  Database
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +33,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { Checkbox } from '@/components/ui/checkbox';
+import { findSubscriptionMatch, saveNewSubscriptionToDatabase, suggestCategory, SubscriptionData } from '@/lib/subscriptionDatabase';
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
@@ -57,6 +60,7 @@ const AddSubscription: React.FC = () => {
   const [hasTrial, setHasTrial] = useState(false);
   const [trialEndDate, setTrialEndDate] = useState<Date | undefined>(undefined);
   const [step, setStep] = useState(1);
+  const [isNewSubscription, setIsNewSubscription] = useState(false);
   
   const categories: { value: SubscriptionCategory; label: string; }[] = [
     { value: 'entertainment', label: 'Entertainment' },
@@ -80,116 +84,117 @@ const AddSubscription: React.FC = () => {
     setProcessingVoice(true);
     console.log("Processing voice input:", transcript);
     
-    // Extract data from voice input
-    setTimeout(() => {
+    // First, try to find a match in the database
+    const match = findSubscriptionMatch(transcript);
+    
+    if (match) {
+      console.log("Found database match:", match);
+      
+      // Use database information
+      setSubscription(prev => ({
+        ...prev,
+        name: match.name,
+        provider: match.provider,
+        category: match.category as SubscriptionCategory,
+        // Try to match price from common prices if mentioned in transcript
+        price: extractPriceFromTranscript(transcript) || match.commonPrices[0] || 0
+      }));
+      
+      setIsNewSubscription(false);
+      toast.success(`Found ${match.name} in database!`);
+    } else {
+      console.log("No database match found, using AI extraction");
+      
+      // Fall back to AI extraction
       const extractedData = mockAIExtraction(transcript);
-      console.log("Extracted data:", extractedData);
+      setSubscription(prev => ({
+        ...prev,
+        ...extractedData
+      }));
       
-      // Update subscription state with extracted data
-      setSubscription(prev => {
-        const newData = {
-          ...prev,
-          ...extractedData
-        };
-        console.log("Updated subscription data:", newData);
-        return newData;
-      });
-      
-      // Update start date if present in extracted data
-      if (extractedData.startDate) {
-        setStartDate(extractedData.startDate);
-        console.log("Setting start date:", extractedData.startDate);
-      }
-      
-      // Update trial information if present in extracted data
-      if (extractedData.trialEndDate) {
-        setHasTrial(true);
-        setTrialEndDate(extractedData.trialEndDate);
-        console.log("Setting trial end date:", extractedData.trialEndDate);
-      }
-      
+      setIsNewSubscription(true);
+    }
+    
+    // Handle dates regardless of database match
+    const extractedData = mockAIExtraction(transcript);
+    if (extractedData.startDate) {
+      setStartDate(extractedData.startDate);
+    }
+    
+    if (extractedData.trialEndDate) {
+      setHasTrial(true);
+      setTrialEndDate(extractedData.trialEndDate);
+    }
+    
+    setTimeout(() => {
       setProcessingVoice(false);
-      toast.success('Subscription details extracted!');
     }, 1500);
   };
   
-  // Improved AI extraction that's more literal and better at parsing dates
+  // Helper function to extract price from transcript
+  const extractPriceFromTranscript = (transcript: string): number | null => {
+    const pricePatterns = [
+      /(\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)/i,
+      /\$(\d+(?:\.\d{1,2})?)/i,
+      /(\d+(?:\.\d{1,2})?)\s*per/i,
+    ];
+    
+    for (const pattern of pricePatterns) {
+      const match = transcript.match(pattern);
+      if (match && match[1]) {
+        const price = parseFloat(match[1]);
+        if (price > 0 && price < 10000) {
+          return price;
+        }
+      }
+    }
+    
+    return null;
+  };
+  
+  // Simplified AI extraction function
   const mockAIExtraction = (transcript: string): Partial<Subscription> => {
     console.log("Running AI extraction on:", transcript);
     const lowercased = transcript.toLowerCase();
     
     let extracted: Partial<Subscription> = {};
     
-    // More literal approach - extract company names as spoken
-    // First check for common service patterns, but if not found, be more literal
-    const servicePatterns = [
-      { pattern: /netflix/i, name: 'Netflix', provider: 'Netflix, Inc.' },
-      { pattern: /spotify/i, name: 'Spotify', provider: 'Spotify AB' },
-      { pattern: /hulu/i, name: 'Hulu', provider: 'Hulu, LLC' },
-      { pattern: /disney(\s|plus|\+)/i, name: 'Disney+', provider: 'Disney' },
-      { pattern: /adobe/i, name: 'Adobe Creative Cloud', provider: 'Adobe Inc.' },
-      { pattern: /amazon(\s|prime)/i, name: 'Amazon Prime', provider: 'Amazon.com, Inc.' },
-      { pattern: /youtube(\s|premium)/i, name: 'YouTube Premium', provider: 'Google LLC' },
-      { pattern: /apple(\s|music)/i, name: 'Apple Music', provider: 'Apple Inc.' },
-      { pattern: /microsoft(\s|office|365)/i, name: 'Microsoft 365', provider: 'Microsoft Corporation' },
-      { pattern: /google(\s|one|drive)/i, name: 'Google One', provider: 'Google LLC' },
-      { pattern: /dropbox/i, name: 'Dropbox', provider: 'Dropbox, Inc.' },
+    // Extract service name - be more literal
+    const namePatterns = [
+      /(?:subscription\s+(?:for|to)\s+)([a-z0-9\s&]+?)(?:\s+(?:for|costs|is|at|starting|begins))/i,
+      /(?:for\s+)([a-z0-9\s&]+?)(?:\s+(?:subscription|service|app|costs|is|at))/i,
     ];
     
-    // Check for known services first
-    let foundKnownService = false;
-    for (const service of servicePatterns) {
-      if (service.pattern.test(lowercased)) {
-        extracted.name = service.name;
-        extracted.provider = service.provider;
-        foundKnownService = true;
-        break;
-      }
-    }
-    
-    // If no known service found, be more literal with what was said
-    if (!foundKnownService) {
-      // Extract any capitalized words or quoted content as potential service names
-      const namePatterns = [
-        /(?:subscription\s+(?:for|to)\s+)([a-z0-9\s&]+?)(?:\s+(?:for|costs|is|at|starting|begins))/i,
-        /(?:for\s+)([a-z0-9\s&]+?)(?:\s+(?:subscription|service|app))/i,
-        /(?:^|\s)([A-Z][a-z0-9]*(?:\s+[A-Z][a-z0-9]*)*)/g, // Capitalized words
-      ];
-      
-      for (const pattern of namePatterns) {
-        const match = transcript.match(pattern);
-        if (match && match[1]) {
-          const name = match[1].trim();
-          if (name.length > 1 && name.length < 50) { // Reasonable name length
-            extracted.name = name;
-            extracted.provider = name; // Use same for provider initially
-            break;
-          }
-        }
-      }
-    }
-    
-    // Improved price extraction with more patterns
-    const pricePatterns = [
-      /(\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)\s*(?:per|a|each|\/)/i,
-      /\$(\d+(?:\.\d{1,2})?)\s*(?:per|a|each|\/|for)/i,
-      /(\d+(?:\.\d{1,2})?)\s*(?:per|a|each|\/)/i,
-      /costs?\s*(\d+(?:\.\d{1,2})?)/i,
-      /price\s*(?:is|of)?\s*(\d+(?:\.\d{1,2})?)/i,
-    ];
-    
-    for (const pattern of pricePatterns) {
-      const priceMatch = lowercased.match(pattern);
-      if (priceMatch && priceMatch[1]) {
-        const price = parseFloat(priceMatch[1]);
-        if (price > 0 && price < 10000) { // Reasonable price range
-          extracted.price = price;
+    for (const pattern of namePatterns) {
+      const match = transcript.match(pattern);
+      if (match && match[1]) {
+        const name = match[1].trim();
+        if (name.length > 1 && name.length < 50) {
+          extracted.name = name;
+          extracted.provider = name; // Use same for provider initially
+          extracted.category = suggestCategory(name) as SubscriptionCategory;
           break;
         }
       }
     }
     
-    // Billing cycle detection with more patterns
+    // If no pattern match, use first few words as name
+    if (!extracted.name) {
+      const words = transcript.split(' ').slice(0, 3).join(' ');
+      if (words.length > 0) {
+        extracted.name = words;
+        extracted.provider = words;
+        extracted.category = suggestCategory(words) as SubscriptionCategory;
+      }
+    }
+    
+    // Price extraction
+    const price = extractPriceFromTranscript(transcript);
+    if (price) {
+      extracted.price = price;
+    }
+    
+    // Billing cycle detection
     if (/(month|monthly|per month|each month|every month)/i.test(lowercased)) {
       extracted.cycle = 'monthly';
     } else if (/(year|yearly|annual|annually|per year|each year|every year)/i.test(lowercased)) {
@@ -198,28 +203,10 @@ const AddSubscription: React.FC = () => {
       extracted.cycle = 'weekly';
     }
     
-    // Category detection with improved patterns
-    const categoryPatterns = [
-      { pattern: /(stream|streaming|movie|movies|tv|show|entertainment|watch)/i, category: 'entertainment' },
-      { pattern: /(work|office|document|productivity|suite)/i, category: 'productivity' },
-      { pattern: /(cloud|storage|backup|drive|utility)/i, category: 'utilities' },
-      { pattern: /(social|network|media|chat|messaging)/i, category: 'social' },
-      { pattern: /(lifestyle|living|home)/i, category: 'lifestyle' },
-      { pattern: /(health|fitness|medical|wellness)/i, category: 'health' },
-      { pattern: /(finance|financial|banking|money)/i, category: 'finance' },
-    ];
-    
-    for (const { pattern, category } of categoryPatterns) {
-      if (pattern.test(lowercased)) {
-        extracted.category = category as SubscriptionCategory;
-        break;
-      }
-    }
-    
-    // Enhanced start date parsing
+    // Start date parsing
     const today = new Date();
     
-    // Relative date patterns - Fixed the type issue
+    // Relative date patterns
     const relativeDatePatterns = [
       { pattern: /start(?:s|ed|ing)?\s+today/i, dateGetter: () => new Date() },
       { pattern: /start(?:s|ed|ing)?\s+tomorrow/i, dateGetter: () => addDays(new Date(), 1) },
@@ -242,16 +229,12 @@ const AddSubscription: React.FC = () => {
       }
     }
     
-    // Specific date patterns - more comprehensive
+    // Specific date patterns
     if (!extracted.startDate) {
       const specificDatePatterns = [
-        // Month Day, Year
         /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{2,4})?)/i,
-        // Month Day
         /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?)/i,
-        // Just month and day without keywords
         /(\w+\s+\d{1,2}(?:st|nd|rd|th)?)(?:\s+(?:is|will be|starts?))/i,
-        // Numeric dates
         /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)/i,
       ];
       
@@ -259,31 +242,31 @@ const AddSubscription: React.FC = () => {
         const dateMatch = transcript.match(pattern);
         if (dateMatch && dateMatch[1]) {
           try {
-            let dateString = dateMatch[1].trim();
+            let cleanDateString = dateMatch[1].trim();
             
-            // Clean up ordinal numbers (1st, 2nd, 3rd, 4th)
-            dateString = dateString.replace(/(\d+)(?:st|nd|rd|th)/g, '$1');
+            // Clean up ordinal numbers
+            cleanDateString = cleanDateString.replace(/(\d+)(?:st|nd|rd|th)/g, '$1');
             
             // Try different date parsing approaches
             let parsedDate;
             
             // Try with current year if no year specified
-            if (!/\d{4}/.test(dateString)) {
-              parsedDate = parse(dateString + ` ${today.getFullYear()}`, 'MMMM d yyyy', new Date());
+            if (!/\d{4}/.test(cleanDateString)) {
+              parsedDate = parse(cleanDateString + ` ${today.getFullYear()}`, 'MMMM d yyyy', new Date());
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateString + ` ${today.getFullYear()}`, 'MMM d yyyy', new Date());
+                parsedDate = parse(cleanDateString + ` ${today.getFullYear()}`, 'MMM d yyyy', new Date());
               }
             } else {
               // Has year
-              parsedDate = parse(dateString, 'MMMM d yyyy', new Date());
+              parsedDate = parse(cleanDateString, 'MMMM d yyyy', new Date());
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateString, 'MMM d yyyy', new Date());
+                parsedDate = parse(cleanDateString, 'MMM d yyyy', new Date());
               }
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateString, 'M/d/yyyy', new Date());
+                parsedDate = parse(cleanDateString, 'M/d/yyyy', new Date());
               }
               if (!isValid(parsedDate)) {
-                parsedDate = parse(dateString, 'M/d/yy', new Date());
+                parsedDate = parse(cleanDateString, 'M/d/yy', new Date());
               }
             }
             
@@ -296,13 +279,13 @@ const AddSubscription: React.FC = () => {
               break;
             }
           } catch (e) {
-            console.log("Error parsing specific date:", dateString, e);
+            console.log("Error parsing specific date:", cleanDateString, e);
           }
         }
       }
     }
     
-    // Trial information extraction - improved
+    // Trial information extraction
     const trialPatterns = [
       /(\d+)[\s-]*(?:day|days)\s+(?:free\s+)?trial/i,
       /(\d+)[\s-]*(?:week|weeks)\s+(?:free\s+)?trial/i,
@@ -370,7 +353,21 @@ const AddSubscription: React.FC = () => {
   };
   
   const handleSubmit = () => {
-    // Add new subscription to storage
+    // If this is a new subscription not in our database, save it
+    if (isNewSubscription && subscription.name && subscription.provider && subscription.category) {
+      const newSubscriptionData: SubscriptionData = {
+        name: subscription.name,
+        provider: subscription.provider,
+        category: subscription.category,
+        commonPrices: subscription.price ? [subscription.price] : [],
+        alternativeNames: [subscription.name.toLowerCase()]
+      };
+      
+      saveNewSubscriptionToDatabase(newSubscriptionData);
+      toast.success('New subscription saved to database for future users!');
+    }
+    
+    // Add subscription to user's list
     const newSubscription: Subscription = {
       id: uuidv4(),
       name: subscription.name || '',
@@ -416,7 +413,8 @@ const AddSubscription: React.FC = () => {
     console.log("Current start date:", startDate);
     console.log("Has trial:", hasTrial);
     console.log("Trial end date:", trialEndDate);
-  }, [subscription, startDate, hasTrial, trialEndDate]);
+    console.log("Is new subscription:", isNewSubscription);
+  }, [subscription, startDate, hasTrial, trialEndDate, isNewSubscription]);
   
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">
@@ -465,6 +463,15 @@ const AddSubscription: React.FC = () => {
             <div className="flex items-center justify-center p-4 mb-6 rounded-md bg-primary/5 animate-pulse">
               <Sparkles className="h-5 w-5 mr-2 text-primary" />
               <span>Processing your subscription details...</span>
+            </div>
+          )}
+          
+          {isNewSubscription && subscription.name && (
+            <div className="flex items-center justify-center p-4 mb-6 rounded-md bg-green-50 dark:bg-green-900/20">
+              <Database className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
+              <span className="text-green-800 dark:text-green-300">
+                New subscription "{subscription.name}" will be saved to database for future users!
+              </span>
             </div>
           )}
           
