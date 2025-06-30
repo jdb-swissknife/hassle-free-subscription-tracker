@@ -113,7 +113,7 @@ const AddSubscription: React.FC = () => {
     }, 1500);
   };
   
-  // Improved AI extraction - focus more on service name, make provider optional
+  // Improved AI extraction that's more literal and better at parsing dates
   const mockAIExtraction = (transcript: string): Partial<Subscription> => {
     console.log("Running AI extraction on:", transcript);
     const lowercased = transcript.toLowerCase();
@@ -121,7 +121,7 @@ const AddSubscription: React.FC = () => {
     let extracted: Partial<Subscription> = {};
     
     // More literal approach - extract company names as spoken
-    // First check for common service patterns
+    // First check for common service patterns, but if not found, be more literal
     const servicePatterns = [
       { pattern: /netflix/i, name: 'Netflix', provider: 'Netflix, Inc.' },
       { pattern: /spotify/i, name: 'Spotify', provider: 'Spotify AB' },
@@ -147,7 +147,7 @@ const AddSubscription: React.FC = () => {
       }
     }
     
-    // If no known service found, extract any reasonable service name
+    // If no known service found, be more literal with what was said
     if (!foundKnownService) {
       // Extract any capitalized words or quoted content as potential service names
       const namePatterns = [
@@ -162,7 +162,7 @@ const AddSubscription: React.FC = () => {
           const name = match[1].trim();
           if (name.length > 1 && name.length < 50) { // Reasonable name length
             extracted.name = name;
-            // Don't set provider automatically - let user add it manually if needed
+            extracted.provider = name; // Use same for provider initially
             break;
           }
         }
@@ -364,8 +364,7 @@ const AddSubscription: React.FC = () => {
   
   const isStepValid = () => {
     if (step === 1) {
-      // Only require name and price - provider is now optional
-      return !!subscription.name && !!subscription.price;
+      return !!subscription.name && !!subscription.provider && !!subscription.price;
     }
     return true;
   };
@@ -375,7 +374,7 @@ const AddSubscription: React.FC = () => {
     const newSubscription: Subscription = {
       id: uuidv4(),
       name: subscription.name || '',
-      provider: subscription.provider || subscription.name || '', // Use name as fallback for provider
+      provider: subscription.provider || '',
       price: subscription.price || 0,
       cycle: subscription.cycle as 'monthly' | 'yearly' | 'weekly' | 'custom',
       startDate: startDate || new Date(),
@@ -474,7 +473,7 @@ const AddSubscription: React.FC = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <Label htmlFor="name">Subscription Name *</Label>
+                    <Label htmlFor="name">Subscription Name</Label>
                     <Input
                       id="name"
                       name="name"
@@ -485,20 +484,19 @@ const AddSubscription: React.FC = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="provider">Provider (Optional)</Label>
+                    <Label htmlFor="provider">Provider</Label>
                     <Input
                       id="provider"
                       name="provider"
                       value={subscription.provider || ''}
                       onChange={handleInputChange}
                       className="mt-1"
-                      placeholder="You can add this later if needed"
                     />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="price">Price *</Label>
+                      <Label htmlFor="price">Price</Label>
                       <Input
                         id="price"
                         name="price"
