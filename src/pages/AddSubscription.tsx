@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -171,7 +170,7 @@ const AddSubscription: React.FC = () => {
         const name = match[1].trim();
         if (name.length > 1 && name.length < 50) {
           extracted.name = name;
-          extracted.provider = name; // Use same for provider initially
+          extracted.provider = name;
           extracted.category = suggestCategory(name) as SubscriptionCategory;
           break;
         }
@@ -279,7 +278,7 @@ const AddSubscription: React.FC = () => {
               break;
             }
           } catch (e) {
-            console.log("Error parsing specific date:", cleanDateString, e);
+            console.log("Error parsing specific date:", dateMatch[1], e);
           }
         }
       }
@@ -396,9 +395,9 @@ const AddSubscription: React.FC = () => {
       '#E50914', // Netflix red
       '#1DB954', // Spotify green
       '#FF9900', // Amazon orange
-      '#0088CC', // Telegram blue
+      '#00AEEF', // Telegram blue
       '#FF0000', // YouTube red
-      '#00AEEF', // Twitter blue
+      '#00B2FF', // PayPal blue
       '#A2AAAD', // Apple gray
       '#F56040', // Instagram gradient
       '#7289DA', // Discord purple
