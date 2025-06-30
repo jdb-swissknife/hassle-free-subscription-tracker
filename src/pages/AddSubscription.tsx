@@ -1,38 +1,19 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Calendar,
-  AlertCircle,
-  Check,
-  Sparkles,
-  Database
-} from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Subscription, SubscriptionCategory } from '@/lib/types';
 import VoiceInput from '@/components/VoiceInput';
-import { format, addDays, addWeeks, addMonths, parse, isValid } from 'date-fns';
+import SubscriptionForm from '@/components/SubscriptionForm';
+import SubscriptionSettings from '@/components/SubscriptionSettings';
+import VoiceProcessingIndicator from '@/components/VoiceProcessingIndicator';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
-import { Checkbox } from '@/components/ui/checkbox';
-import { findSubscriptionMatch, saveNewSubscriptionToDatabase, suggestCategory, SubscriptionData } from '@/lib/subscriptionDatabase';
+import { saveNewSubscriptionToDatabase, SubscriptionData } from '@/lib/subscriptionDatabase';
+import { processVoiceInput } from '@/lib/voiceProcessor';
+import { getRandomColor, createDefaultNotifications } from '@/utils/subscriptionUtils';
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
@@ -46,14 +27,7 @@ const AddSubscription: React.FC = () => {
     cycle: 'monthly',
     category: 'entertainment',
     active: true,
-    notifications: [
-      {
-        id: uuidv4(),
-        type: 'payment-upcoming',
-        enabled: true,
-        daysInAdvance: 3,
-      }
-    ]
+    notifications: createDefaultNotifications()
   });
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [hasTrial, setHasTrial] = useState(false);
@@ -61,61 +35,26 @@ const AddSubscription: React.FC = () => {
   const [step, setStep] = useState(1);
   const [isNewSubscription, setIsNewSubscription] = useState(false);
   
-  const categories: { value: SubscriptionCategory; label: string; }[] = [
-    { value: 'entertainment', label: 'Entertainment' },
-    { value: 'productivity', label: 'Productivity' },
-    { value: 'utilities', label: 'Utilities' },
-    { value: 'social', label: 'Social' },
-    { value: 'lifestyle', label: 'Lifestyle' },
-    { value: 'health', label: 'Health' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'other', label: 'Other' },
-  ];
-  
-  const cycles = [
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'yearly', label: 'Yearly' },
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'custom', label: 'Custom' },
-  ];
-  
   const handleVoiceInput = (transcript: string) => {
     setProcessingVoice(true);
-    console.log("Processing voice input:", transcript);
     
-    // First, try to find a match in the database
-    const match = findSubscriptionMatch(transcript);
+    const { subscription: extractedSubscription, isNewSubscription: isNew, extractedData } = processVoiceInput(transcript);
     
-    if (match) {
-      console.log("Found database match:", match);
-      
-      // Use database information
-      setSubscription(prev => ({
-        ...prev,
-        name: match.name,
-        provider: match.provider,
-        category: match.category as SubscriptionCategory,
-        // Try to match price from common prices if mentioned in transcript
-        price: extractPriceFromTranscript(transcript) || match.commonPrices[0] || 0
-      }));
-      
-      setIsNewSubscription(false);
-      toast.success(`Found ${match.name} in database!`);
-    } else {
+    setSubscription(prev => ({
+      ...prev,
+      ...extractedSubscription
+    }));
+    
+    setIsNewSubscription(isNew);
+    
+    if (isNew) {
       console.log("No database match found, using AI extraction");
-      
-      // Fall back to AI extraction
-      const extractedData = mockAIExtraction(transcript);
-      setSubscription(prev => ({
-        ...prev,
-        ...extractedData
-      }));
-      
-      setIsNewSubscription(true);
+    } else {
+      console.log("Found database match:", extractedSubscription);
+      toast.success(`Found ${extractedSubscription.name} in database!`);
     }
     
-    // Handle dates regardless of database match
-    const extractedData = mockAIExtraction(transcript);
+    // Handle dates
     if (extractedData.startDate) {
       setStartDate(extractedData.startDate);
     }
@@ -128,204 +67,6 @@ const AddSubscription: React.FC = () => {
     setTimeout(() => {
       setProcessingVoice(false);
     }, 1500);
-  };
-  
-  // Helper function to extract price from transcript
-  const extractPriceFromTranscript = (transcript: string): number | null => {
-    const pricePatterns = [
-      /(\d+(?:\.\d{1,2})?)\s*(?:dollars?|usd|bucks?)/i,
-      /\$(\d+(?:\.\d{1,2})?)/i,
-      /(\d+(?:\.\d{1,2})?)\s*per/i,
-    ];
-    
-    for (const pattern of pricePatterns) {
-      const match = transcript.match(pattern);
-      if (match && match[1]) {
-        const price = parseFloat(match[1]);
-        if (price > 0 && price < 10000) {
-          return price;
-        }
-      }
-    }
-    
-    return null;
-  };
-  
-  // Simplified AI extraction function
-  const mockAIExtraction = (transcript: string): Partial<Subscription> => {
-    console.log("Running AI extraction on:", transcript);
-    const lowercased = transcript.toLowerCase();
-    
-    let extracted: Partial<Subscription> = {};
-    
-    // Extract service name - be more literal
-    const namePatterns = [
-      /(?:subscription\s+(?:for|to)\s+)([a-z0-9\s&]+?)(?:\s+(?:for|costs|is|at|starting|begins))/i,
-      /(?:for\s+)([a-z0-9\s&]+?)(?:\s+(?:subscription|service|app|costs|is|at))/i,
-    ];
-    
-    for (const pattern of namePatterns) {
-      const match = transcript.match(pattern);
-      if (match && match[1]) {
-        const name = match[1].trim();
-        if (name.length > 1 && name.length < 50) {
-          extracted.name = name;
-          extracted.provider = name;
-          extracted.category = suggestCategory(name) as SubscriptionCategory;
-          break;
-        }
-      }
-    }
-    
-    // If no pattern match, use first few words as name
-    if (!extracted.name) {
-      const words = transcript.split(' ').slice(0, 3).join(' ');
-      if (words.length > 0) {
-        extracted.name = words;
-        extracted.provider = words;
-        extracted.category = suggestCategory(words) as SubscriptionCategory;
-      }
-    }
-    
-    // Price extraction
-    const price = extractPriceFromTranscript(transcript);
-    if (price) {
-      extracted.price = price;
-    }
-    
-    // Billing cycle detection
-    if (/(month|monthly|per month|each month|every month)/i.test(lowercased)) {
-      extracted.cycle = 'monthly';
-    } else if (/(year|yearly|annual|annually|per year|each year|every year)/i.test(lowercased)) {
-      extracted.cycle = 'yearly';
-    } else if (/(week|weekly|per week|each week|every week)/i.test(lowercased)) {
-      extracted.cycle = 'weekly';
-    }
-    
-    // Start date parsing
-    const today = new Date();
-    
-    // Relative date patterns
-    const relativeDatePatterns = [
-      { pattern: /start(?:s|ed|ing)?\s+today/i, dateGetter: () => new Date() },
-      { pattern: /start(?:s|ed|ing)?\s+tomorrow/i, dateGetter: () => addDays(new Date(), 1) },
-      { pattern: /start(?:s|ed|ing)?\s+next\s+week/i, dateGetter: () => addWeeks(new Date(), 1) },
-      { pattern: /start(?:s|ed|ing)?\s+next\s+month/i, dateGetter: () => addMonths(new Date(), 1) },
-      { pattern: /(?:in|after)\s+(\d+)\s+days?/i, dateGetter: (match: RegExpMatchArray) => addDays(new Date(), parseInt(match[1])) },
-      { pattern: /(?:in|after)\s+(\d+)\s+weeks?/i, dateGetter: (match: RegExpMatchArray) => addWeeks(new Date(), parseInt(match[1])) },
-      { pattern: /(?:in|after)\s+(\d+)\s+months?/i, dateGetter: (match: RegExpMatchArray) => addMonths(new Date(), parseInt(match[1])) },
-    ];
-    
-    for (const { pattern, dateGetter } of relativeDatePatterns) {
-      const match = lowercased.match(pattern);
-      if (match) {
-        try {
-          extracted.startDate = dateGetter(match);
-          break;
-        } catch (e) {
-          console.log("Error parsing relative date:", e);
-        }
-      }
-    }
-    
-    // Specific date patterns
-    if (!extracted.startDate) {
-      const specificDatePatterns = [
-        /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{2,4})?)/i,
-        /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\w+\s+\d{1,2}(?:st|nd|rd|th)?)/i,
-        /(\w+\s+\d{1,2}(?:st|nd|rd|th)?)(?:\s+(?:is|will be|starts?))/i,
-        /(?:start(?:s|ed|ing)?|begin(?:s|ning)?|on)\s+(?:on\s+)?(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)/i,
-      ];
-      
-      for (const pattern of specificDatePatterns) {
-        const dateMatch = transcript.match(pattern);
-        if (dateMatch && dateMatch[1]) {
-          try {
-            let cleanDateString = dateMatch[1].trim();
-            
-            // Clean up ordinal numbers
-            cleanDateString = cleanDateString.replace(/(\d+)(?:st|nd|rd|th)/g, '$1');
-            
-            // Try different date parsing approaches
-            let parsedDate;
-            
-            // Try with current year if no year specified
-            if (!/\d{4}/.test(cleanDateString)) {
-              parsedDate = parse(cleanDateString + ` ${today.getFullYear()}`, 'MMMM d yyyy', new Date());
-              if (!isValid(parsedDate)) {
-                parsedDate = parse(cleanDateString + ` ${today.getFullYear()}`, 'MMM d yyyy', new Date());
-              }
-            } else {
-              // Has year
-              parsedDate = parse(cleanDateString, 'MMMM d yyyy', new Date());
-              if (!isValid(parsedDate)) {
-                parsedDate = parse(cleanDateString, 'MMM d yyyy', new Date());
-              }
-              if (!isValid(parsedDate)) {
-                parsedDate = parse(cleanDateString, 'M/d/yyyy', new Date());
-              }
-              if (!isValid(parsedDate)) {
-                parsedDate = parse(cleanDateString, 'M/d/yy', new Date());
-              }
-            }
-            
-            if (isValid(parsedDate)) {
-              // If parsed date is in the past, assume next year
-              if (parsedDate < today) {
-                parsedDate = addMonths(parsedDate, 12);
-              }
-              extracted.startDate = parsedDate;
-              break;
-            }
-          } catch (e) {
-            console.log("Error parsing specific date:", dateMatch[1], e);
-          }
-        }
-      }
-    }
-    
-    // Trial information extraction
-    const trialPatterns = [
-      /(\d+)[\s-]*(?:day|days)\s+(?:free\s+)?trial/i,
-      /(\d+)[\s-]*(?:week|weeks)\s+(?:free\s+)?trial/i,
-      /(\d+)[\s-]*(?:month|months)\s+(?:free\s+)?trial/i,
-      /(?:free\s+)?trial\s+(?:for\s+)?(\d+)\s+(?:day|days)/i,
-      /(?:free\s+)?trial\s+(?:for\s+)?(\d+)\s+(?:week|weeks)/i,
-      /(?:free\s+)?trial\s+(?:for\s+)?(\d+)\s+(?:month|months)/i,
-      /has\s+(?:a\s+)?(?:free\s+)?trial/i,
-    ];
-    
-    for (const pattern of trialPatterns) {
-      const trialMatch = lowercased.match(pattern);
-      if (trialMatch) {
-        const startDateToUse = extracted.startDate || new Date();
-        let trialDate;
-        
-        if (trialMatch[1]) {
-          const trialValue = parseInt(trialMatch[1]);
-          const patternStr = pattern.source.toLowerCase();
-          
-          if (patternStr.includes('day')) {
-            trialDate = addDays(startDateToUse, trialValue);
-          } else if (patternStr.includes('week')) {
-            trialDate = addWeeks(startDateToUse, trialValue);
-          } else if (patternStr.includes('month')) {
-            trialDate = addMonths(startDateToUse, trialValue);
-          }
-        } else {
-          // Generic trial mention without specific duration - default to 7 days
-          trialDate = addDays(startDateToUse, 7);
-        }
-        
-        if (trialDate) {
-          extracted.trialEndDate = trialDate;
-          break;
-        }
-      }
-    }
-    
-    console.log("Final extraction result:", extracted);
-    return extracted;
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,7 +118,7 @@ const AddSubscription: React.FC = () => {
       trialEndDate: hasTrial ? trialEndDate : undefined,
       category: subscription.category as SubscriptionCategory,
       active: true,
-      notifications: subscription.notifications || [],
+      notifications: subscription.notifications || createDefaultNotifications(),
       color: subscription.color || getRandomColor(),
       description: subscription.description,
       paymentMethod: subscription.paymentMethod,
@@ -387,23 +128,6 @@ const AddSubscription: React.FC = () => {
     
     addSubscription(newSubscription);
     navigate('/dashboard');
-  };
-  
-  // Generate a random color for the subscription
-  const getRandomColor = () => {
-    const colors = [
-      '#E50914', // Netflix red
-      '#1DB954', // Spotify green
-      '#FF9900', // Amazon orange
-      '#00AEEF', // Telegram blue
-      '#FF0000', // YouTube red
-      '#00B2FF', // PayPal blue
-      '#A2AAAD', // Apple gray
-      '#F56040', // Instagram gradient
-      '#7289DA', // Discord purple
-      '#00B2FF', // PayPal blue
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
   };
   
   // For debugging purposes
@@ -458,196 +182,27 @@ const AddSubscription: React.FC = () => {
             className="mb-6"
           />
           
-          {processingVoice && (
-            <div className="flex items-center justify-center p-4 mb-6 rounded-md bg-primary/5 animate-pulse">
-              <Sparkles className="h-5 w-5 mr-2 text-primary" />
-              <span>Processing your subscription details...</span>
-            </div>
-          )}
-          
-          {isNewSubscription && subscription.name && (
-            <div className="flex items-center justify-center p-4 mb-6 rounded-md bg-green-50 dark:bg-green-900/20">
-              <Database className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
-              <span className="text-green-800 dark:text-green-300">
-                New subscription "{subscription.name}" will be saved to database for future users!
-              </span>
-            </div>
-          )}
+          <VoiceProcessingIndicator
+            processingVoice={processingVoice}
+            isNewSubscription={isNewSubscription}
+            subscriptionName={subscription.name}
+          />
           
           {step === 1 ? (
-            <>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <Label htmlFor="name">Subscription Name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={subscription.name || ''}
-                      onChange={handleInputChange}
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="provider">Provider</Label>
-                    <Input
-                      id="provider"
-                      name="provider"
-                      value={subscription.provider || ''}
-                      onChange={handleInputChange}
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="price">Price</Label>
-                      <Input
-                        id="price"
-                        name="price"
-                        type="number"
-                        value={subscription.price || ''}
-                        onChange={handleInputChange}
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="cycle">Billing Cycle</Label>
-                      <Select
-                        value={subscription.cycle}
-                        onValueChange={(value) => handleSelectChange('cycle', value)}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select cycle" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {cycles.map((cycle) => (
-                            <SelectItem key={cycle.value} value={cycle.value}>
-                              {cycle.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={subscription.category}
-                      onValueChange={(value) => handleSelectChange('category', value as SubscriptionCategory)}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.value} value={category.value}>
-                            {category.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            </>
+            <SubscriptionForm
+              subscription={subscription}
+              onInputChange={handleInputChange}
+              onSelectChange={handleSelectChange}
+            />
           ) : (
-            <>
-              <div className="space-y-6">
-                <div>
-                  <Label>Start Date</Label>
-                  <div className="mt-1">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !startDate && "text-muted-foreground"
-                          )}
-                        >
-                          <Calendar className="mr-2 h-4 w-4" />
-                          {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 pointer-events-auto">
-                        <CalendarComponent
-                          mode="single"
-                          selected={startDate}
-                          onSelect={setStartDate}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="hasTrial"
-                    checked={hasTrial}
-                    onCheckedChange={(checked) => setHasTrial(checked === true)}
-                    className="rounded text-primary focus:ring-primary"
-                  />
-                  <Label htmlFor="hasTrial" className="cursor-pointer">This subscription has a free trial</Label>
-                </div>
-                
-                {hasTrial && (
-                  <div>
-                    <Label>Trial End Date</Label>
-                    <div className="mt-1">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !trialEndDate && "text-muted-foreground"
-                            )}
-                          >
-                            <Calendar className="mr-2 h-4 w-4" />
-                            {trialEndDate ? format(trialEndDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 pointer-events-auto">
-                          <CalendarComponent
-                            mode="single"
-                            selected={trialEndDate}
-                            onSelect={setTrialEndDate}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="rounded-md bg-blue-50 dark:bg-blue-900/20 p-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <AlertCircle className="h-5 w-5 text-blue-400 dark:text-blue-300" aria-hidden="true" />
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">Notifications</h3>
-                      <div className="mt-2 text-sm text-blue-700 dark:text-blue-400">
-                        <p>Default notifications will be set up for this subscription, including:</p>
-                        <ul className="list-disc pl-5 mt-1 space-y-1">
-                          <li>Payment reminders 3 days before due date</li>
-                          {hasTrial && <li>Trial end reminders 3 days before expiration</li>}
-                          <li>Annual renewal reminders (if applicable)</li>
-                        </ul>
-                        <p className="mt-2">You can customize these in Settings later.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
+            <SubscriptionSettings
+              startDate={startDate}
+              setStartDate={setStartDate}
+              hasTrial={hasTrial}
+              setHasTrial={setHasTrial}
+              trialEndDate={trialEndDate}
+              setTrialEndDate={setTrialEndDate}
+            />
           )}
         </div>
         
