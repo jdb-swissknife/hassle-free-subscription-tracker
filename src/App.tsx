@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import AnimatedTransition from "@/components/AnimatedTransition";
 import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
@@ -19,16 +21,18 @@ const AppRoutes = () => {
   const location = useLocation();
   
   return (
-    <AnimatedTransition location={location.pathname} className="min-h-screen">
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add" element={<AddSubscription />} />
-        <Route path="/subscription/:id" element={<SubscriptionDetail />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AnimatedTransition>
+    <ProtectedRoute>
+      <AnimatedTransition location={location.pathname} className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/add" element={<AddSubscription />} />
+          <Route path="/subscription/:id" element={<SubscriptionDetail />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AnimatedTransition>
+    </ProtectedRoute>
   );
 };
 
@@ -38,7 +42,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
