@@ -1,6 +1,6 @@
 
 import { useCallback, useEffect, useState } from 'react'
-import { Subscription } from '@/lib/types'
+import { Subscription, SubscriptionCategory } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
@@ -32,15 +32,13 @@ export function useSupabaseSubscriptions() {
         name: sub.name,
         provider: sub.provider,
         price: sub.price,
-        cycle: sub.cycle,
+        cycle: sub.cycle as 'monthly' | 'yearly' | 'weekly' | 'custom',
         startDate: new Date(sub.start_date),
         endDate: sub.end_date ? new Date(sub.end_date) : undefined,
         trialEndDate: sub.trial_end_date ? new Date(sub.trial_end_date) : undefined,
-        category: sub.category || 'other',
-        logo: sub.logo,
+        category: (sub.category || 'other') as SubscriptionCategory,
         color: sub.color,
         description: sub.description,
-        paymentMethod: sub.payment_method,
         notifications: [],
         active: sub.active,
       }))
@@ -93,15 +91,13 @@ export function useSupabaseSubscriptions() {
           name: data.name,
           provider: data.provider,
           price: data.price,
-          cycle: data.cycle,
+          cycle: data.cycle as 'monthly' | 'yearly' | 'weekly' | 'custom',
           startDate: new Date(data.start_date),
           endDate: data.end_date ? new Date(data.end_date) : undefined,
           trialEndDate: data.trial_end_date ? new Date(data.trial_end_date) : undefined,
-          category: data.category || 'other',
-          logo: data.logo,
+          category: (data.category || 'other') as SubscriptionCategory,
           color: data.color,
           description: data.description,
-          paymentMethod: data.payment_method,
           notifications: [],
           active: data.active,
         }
