@@ -2,11 +2,31 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Users, Shield, Clock, Sparkles, Bell, CalendarClock, Mic, Brain, Target, DollarSign } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import FloatingText from '@/components/FloatingText';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      // User needs to sign in/up first - they'll be redirected to auth form by ProtectedRoute
+      navigate('/dashboard');
+    }
+  };
+
+  const handleAddSubscription = () => {
+    if (user) {
+      navigate('/add');
+    } else {
+      // User needs to sign in/up first - they'll be redirected to auth form by ProtectedRoute
+      navigate('/add');
+    }
+  };
   
   return (
     <AnimatedTransition location="index" className="min-h-screen">
@@ -18,8 +38,8 @@ const Index: React.FC = () => {
               <Button variant="ghost" className="mr-2" onClick={() => navigate('/settings')}>
                 Settings
               </Button>
-              <Button onClick={() => navigate('/dashboard')}>
-                Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              <Button onClick={handleGetStarted}>
+                {user ? 'Dashboard' : 'Get Started'} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </nav>
@@ -48,11 +68,11 @@ const Index: React.FC = () => {
                     Your smart AI subscription manager that saves money and eliminates subscription surprises. Take control with SubLedger & SubSnipe—your AI dream team.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <Button size="lg" className="px-8 py-3 text-lg" onClick={() => navigate('/dashboard')}>
-                      Start Free <ArrowRight className="ml-2 h-5 w-5" />
+                    <Button size="lg" className="px-8 py-3 text-lg" onClick={handleGetStarted}>
+                      {user ? 'Go to Dashboard' : 'Start Free'} <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button size="lg" variant="outline" className="px-8 py-3 text-lg" onClick={() => navigate('/add')}>
-                      See How It Works
+                    <Button size="lg" variant="outline" className="px-8 py-3 text-lg" onClick={handleAddSubscription}>
+                      {user ? 'Add Subscription' : 'See How It Works'}
                     </Button>
                   </div>
                 </div>
@@ -296,11 +316,11 @@ const Index: React.FC = () => {
                 Join thousands of users who've eliminated subscription surprises and taken control of their recurring payments.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="px-12 py-4 text-lg" onClick={() => navigate('/dashboard')}>
-                  Start Free Today <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" className="px-12 py-4 text-lg" onClick={handleGetStarted}>
+                  {user ? 'Go to Dashboard' : 'Start Free Today'} <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="px-12 py-4 text-lg" onClick={() => navigate('/add')}>
-                  Add Your First Subscription
+                <Button size="lg" variant="outline" className="px-12 py-4 text-lg" onClick={handleAddSubscription}>
+                  {user ? 'Add Subscription' : 'Add Your First Subscription'}
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
