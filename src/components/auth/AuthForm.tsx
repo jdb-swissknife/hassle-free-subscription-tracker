@@ -23,14 +23,26 @@ export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
     setLoading(true)
 
     try {
-      const { error } = mode === 'signin' 
-        ? await signIn(email, password)
-        : await signUp(email, password)
-
-      if (error) {
-        toast.error(error.message)
+      if (mode === 'signin') {
+        const { error } = await signIn(email, password)
+        if (error) {
+          toast.error(error.message)
+        } else {
+          toast.success('Welcome back!')
+        }
       } else {
-        toast.success(mode === 'signin' ? 'Welcome back!' : 'Account created successfully!')
+        // Sign up mode
+        const { error } = await signUp(email, password)
+        if (error) {
+          toast.error(error.message)
+        } else {
+          toast.success('Account created! Please check your email to verify your account.')
+          // Switch to sign in mode after successful signup
+          onToggleMode()
+          // Clear the form
+          setEmail('')
+          setPassword('')
+        }
       }
     } catch (error) {
       toast.error('An unexpected error occurred')

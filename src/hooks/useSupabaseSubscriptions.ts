@@ -12,7 +12,10 @@ export function useSupabaseSubscriptions() {
 
   // Fetch subscriptions from Supabase
   const fetchSubscriptions = useCallback(async () => {
-    if (!user) return
+    if (!user) {
+      setLoading(false)
+      return
+    }
 
     try {
       const { data, error } = await supabase
@@ -23,7 +26,26 @@ export function useSupabaseSubscriptions() {
 
       if (error) throw error
 
-      setSubscriptions(data || [])
+      // Transform the data to match our Subscription type
+      const transformedSubscriptions = (data || []).map((sub: any) => ({
+        id: sub.id,
+        name: sub.name,
+        provider: sub.provider,
+        price: sub.price,
+        cycle: sub.cycle,
+        startDate: new Date(sub.start_date),
+        endDate: sub.end_date ? new Date(sub.end_date) : undefined,
+        trialEndDate: sub.trial_end_date ? new Date(sub.trial_end_date) : undefined,
+        category: sub.category || 'other',
+        logo: sub.logo,
+        color: sub.color,
+        description: sub.description,
+        paymentMethod: sub.payment_method,
+        notifications: [],
+        active: sub.active,
+      }))
+
+      setSubscriptions(transformedSubscriptions)
     } catch (error: any) {
       console.error('Error fetching subscriptions:', error)
       toast.error('Failed to load subscriptions')
@@ -38,7 +60,7 @@ export function useSupabaseSubscriptions() {
   }, [fetchSubscriptions])
 
   // Add a new subscription
-  const addSubscription = useCallback(async (subscription: Omit<Subscription, 'id' | 'user_id'>) => {
+  const addSubscription = useCallback(async (subscription: Omit<Subscription, 'id'>) => {
     if (!user) return null
 
     try {
@@ -46,11 +68,18 @@ export function useSupabaseSubscriptions() {
         .from('subscriptions')
         .insert([
           {
-            ...subscription,
+            name: subscription.name,
+            provider: subscription.provider,
+            price: subscription.price,
+            cycle: subscription.cycle,
+            category: subscription.category,
+            color: subscription.color,
+            description: subscription.description,
             user_id: user.id,
-            start_date: subscription.startDate?.toISOString(),
+            start_date: subscription.startDate?.toISOString() || new Date().toISOString(),
             end_date: subscription.endDate?.toISOString(),
             trial_end_date: subscription.trialEndDate?.toISOString(),
+            active: subscription.active,
           }
         ])
         .select()
@@ -58,16 +87,29 @@ export function useSupabaseSubscriptions() {
 
       if (error) throw error
 
-      const newSubscription = {
-        ...data,
-        startDate: new Date(data.start_date),
-        endDate: data.end_date ? new Date(data.end_date) : undefined,
-        trialEndDate: data.trial_end_date ? new Date(data.trial_end_date) : undefined,
-      }
+      if (data) {
+        const newSubscription: Subscription = {
+          id: data.id,
+          name: data.name,
+          provider: data.provider,
+          price: data.price,
+          cycle: data.cycle,
+          startDate: new Date(data.start_date),
+          endDate: data.end_date ? new Date(data.end_date) : undefined,
+          trialEndDate: data.trial_end_date ? new Date(data.trial_end_date) : undefined,
+          category: data.category || 'other',
+          logo: data.logo,
+          color: data.color,
+          description: data.description,
+          paymentMethod: data.payment_method,
+          notifications: [],
+          active: data.active,
+        }
 
-      setSubscriptions(prev => [newSubscription, ...prev])
-      toast.success('Subscription added successfully!')
-      return newSubscription
+        setSubscriptions(prev => [newSubscription, ...prev])
+        toast.success('Subscription added successfully!')
+        return newSubscription
+      }
     } catch (error: any) {
       console.error('Error adding subscription:', error)
       toast.error('Failed to add subscription')
@@ -80,14 +122,23 @@ export function useSupabaseSubscriptions() {
     if (!user) return
 
     try {
+      const updateData: any = {}
+      
+      if (updates.name !== undefined) updateData.name = updates.name
+      if (updates.provider !== undefined) updateData.provider = updates.provider
+      if (updates.price !== undefined) updateData.price = updates.price
+      if (updates.cycle !== undefined) updateData.cycle = updates.cycle
+      if (updates.category !== undefined) updateData.category = updates.category
+      if (updates.color !== undefined) updateData.color = updates.color
+      if (updates.description !== undefined) updateData.description = updates.description
+      if (updates.startDate !== undefined) updateData.start_date = updates.startDate.toISOString()
+      if (updates.endDate !== undefined) updateData.end_date = updates.endDate?.toISOString()
+      if (updates.trialEndDate !== undefined) updateData.trial_end_date = updates.trialEndDate?.toISOString()
+      if (updates.active !== undefined) updateData.active = updates.active
+
       const { error } = await supabase
         .from('subscriptions')
-        .update({
-          ...updates,
-          start_date: updates.startDate?.toISOString(),
-          end_date: updates.endDate?.toISOString(),
-          trial_end_date: updates.trialEndDate?.toISOString(),
-        })
+        .update(updateData)
         .eq('id', id)
         .eq('user_id', user.id)
 
