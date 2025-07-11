@@ -11,7 +11,9 @@ import {
   Phone,
   Calendar,
   Download,
-  Globe
+  Globe,
+  LogOut,
+  User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -21,19 +23,21 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { mockUserSettings } from '@/lib/mockData';
 import { UserSettings, NotificationSetting } from '@/lib/types';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
 import { CalendarService } from '@/services/calendarService';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [settings, setSettings] = useState<UserSettings>({
     ...mockUserSettings,
     phoneNumber: mockUserSettings.phoneNumber || '',
     timezone: mockUserSettings.timezone || 'America/New_York'
   });
   
-  const { subscriptions } = useSubscriptions();
+  const { subscriptions } = useSupabaseSubscriptions();
   const calendarService = CalendarService.getInstance();
   
   const handleNotificationToggle = (id: string, enabled: boolean) => {
@@ -101,6 +105,16 @@ const Settings: React.FC = () => {
     
     calendarService.downloadBulkCalendar(activeSubscriptions, 12);
     toast.success('Calendar file downloaded successfully!');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success('Successfully logged out');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to log out');
+    }
   };
   
   const handleSave = () => {
@@ -363,6 +377,37 @@ const Settings: React.FC = () => {
                   <SelectItem value="Australia/Sydney">Australian Eastern Time (AET)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+        </section>
+
+        <section className="glass-card p-6">
+          <h2 className="text-xl font-medium mb-4 flex items-center">
+            <User className="h-5 w-5 mr-2 text-primary" />
+            Account
+          </h2>
+          
+          <div className="space-y-4">
+            <div>
+              <Label className="block mb-2">Email</Label>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
+            </div>
+            
+            <Separator />
+            
+            <div>
+              <h3 className="font-medium mb-2 text-destructive">Danger Zone</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Sign out of your account. You'll need to sign back in to access your subscriptions.
+              </p>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </section>
