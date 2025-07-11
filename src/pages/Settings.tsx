@@ -97,7 +97,7 @@ const Settings: React.FC = () => {
     }
   };
   
-  // Show loading state while settings are being fetched
+  // Show loading state while settings are being fetched or if settings is null
   if (settingsLoading || !settings) {
     return (
       <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">

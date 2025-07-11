@@ -46,9 +46,26 @@ export function useUserSettings() {
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
 
+  // Create default settings
+  const createDefaultSettings = (): UserSettings => ({
+    id: '',
+    notificationPreference: {
+      email: true,
+      push: true,
+      inApp: true,
+      sms: false,
+    },
+    defaultNotifications,
+    currency: 'USD',
+    theme: 'system',
+    timezone: 'America/New_York',
+  })
+
   // Fetch user settings from database
   const fetchSettings = useCallback(async () => {
     if (!user) {
+      // Set default settings for non-authenticated users
+      setSettings(createDefaultSettings())
       setLoading(false)
       return
     }
@@ -85,24 +102,14 @@ export function useUserSettings() {
         }
         setSettings(userSettings)
       } else {
-        // Create default settings for new user
-        const newSettings: UserSettings = {
-          id: '',
-          notificationPreference: {
-            email: true,
-            push: true,
-            inApp: true,
-            sms: false,
-          },
-          defaultNotifications,
-          currency: 'USD',
-          theme: 'system',
-          timezone: 'America/New_York',
-        }
+        // Create default settings for new user and immediately set them
+        const newSettings = createDefaultSettings()
         setSettings(newSettings)
       }
     } catch (error: any) {
       console.error('Error fetching user settings:', error)
+      // On error, still provide default settings instead of leaving null
+      setSettings(createDefaultSettings())
       toast.error('Failed to load settings')
     } finally {
       setLoading(false)
