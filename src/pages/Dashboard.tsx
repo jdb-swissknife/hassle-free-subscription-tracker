@@ -5,7 +5,7 @@ import { Settings as SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubscriptionCategory } from '@/lib/types';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
 import NotificationBadge from '@/components/NotificationBadge';
 import DashboardStats from '@/components/dashboard/DashboardStats';
 import FreeTrialsList from '@/components/dashboard/FreeTrialsList';
@@ -18,11 +18,12 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { 
     subscriptions,
+    loading,
     calculateMonthlySpend,
     getActiveSubscriptions,
     getFreeTrials,
     searchSubscriptions
-  } = useSubscriptions();
+  } = useSupabaseSubscriptions();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'date'>('date');

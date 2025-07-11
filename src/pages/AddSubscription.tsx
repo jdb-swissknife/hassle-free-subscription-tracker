@@ -10,14 +10,14 @@ import SubscriptionSettings from '@/components/SubscriptionSettings';
 import VoiceProcessingIndicator from '@/components/VoiceProcessingIndicator';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
 import { saveNewSubscriptionToDatabase, SubscriptionData } from '@/lib/subscriptionDatabase';
 import { processVoiceInput } from '@/lib/voiceProcessor';
 import { getRandomColor, createDefaultNotifications } from '@/utils/subscriptionUtils';
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
-  const { addSubscription } = useSubscriptions();
+  const { addSubscription } = useSupabaseSubscriptions();
   const [listening, setListening] = useState(false);
   const [processingVoice, setProcessingVoice] = useState(false);
   const [subscription, setSubscription] = useState<Partial<Subscription>>({
@@ -92,7 +92,7 @@ const AddSubscription: React.FC = () => {
     return true;
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // If this is a new subscription not in our database, save it
     if (isNewSubscription && subscription.name && subscription.provider && subscription.category) {
       const newSubscriptionData: SubscriptionData = {
@@ -108,8 +108,7 @@ const AddSubscription: React.FC = () => {
     }
     
     // Add subscription to user's list
-    const newSubscription: Subscription = {
-      id: uuidv4(),
+    const newSubscription: Omit<Subscription, 'id'> = {
       name: subscription.name || '',
       provider: subscription.provider || '',
       price: subscription.price || 0,
@@ -120,14 +119,13 @@ const AddSubscription: React.FC = () => {
       active: true,
       notifications: subscription.notifications || createDefaultNotifications(),
       color: subscription.color || getRandomColor(),
-      description: subscription.description,
-      paymentMethod: subscription.paymentMethod,
-      logo: subscription.logo,
-      endDate: subscription.endDate
+      description: subscription.description
     };
     
-    addSubscription(newSubscription);
-    navigate('/dashboard');
+    const result = await addSubscription(newSubscription);
+    if (result) {
+      navigate('/dashboard');
+    }
   };
   
   // For debugging purposes
