@@ -71,6 +71,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          currency: string
+          default_notifications: Json
+          email_notifications: boolean
+          id: string
+          in_app_notifications: boolean
+          phone_number: string | null
+          push_notifications: boolean
+          sms_notifications: boolean
+          theme: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          default_notifications?: Json
+          email_notifications?: boolean
+          id?: string
+          in_app_notifications?: boolean
+          phone_number?: string | null
+          push_notifications?: boolean
+          sms_notifications?: boolean
+          theme?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          default_notifications?: Json
+          email_notifications?: boolean
+          id?: string
+          in_app_notifications?: boolean
+          phone_number?: string | null
+          push_notifications?: boolean
+          sms_notifications?: boolean
+          theme?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

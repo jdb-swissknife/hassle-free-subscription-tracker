@@ -25,75 +25,44 @@ import { mockUserSettings } from '@/lib/mockData';
 import { UserSettings, NotificationSetting } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
+import { useUserSettings } from '@/hooks/useUserSettings';
 import { CalendarService } from '@/services/calendarService';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const [settings, setSettings] = useState<UserSettings>({
-    ...mockUserSettings,
-    phoneNumber: mockUserSettings.phoneNumber || '',
-    timezone: mockUserSettings.timezone || 'America/New_York'
-  });
+  const { settings, loading: settingsLoading, updateSetting, updateNotificationPreference, updateDefaultNotification } = useUserSettings();
   
   const { subscriptions } = useSupabaseSubscriptions();
   const calendarService = CalendarService.getInstance();
   
-  const handleNotificationToggle = (id: string, enabled: boolean) => {
-    setSettings(prev => ({
-      ...prev,
-      defaultNotifications: prev.defaultNotifications.map(notification => 
-        notification.id === id ? { ...notification, enabled } : notification
-      )
-    }));
+  const handleNotificationToggle = async (id: string, enabled: boolean) => {
+    await updateDefaultNotification(id, { enabled });
   };
   
-  const handleNotificationDaysChange = (id: string, days: number) => {
-    setSettings(prev => ({
-      ...prev,
-      defaultNotifications: prev.defaultNotifications.map(notification => 
-        notification.id === id ? { ...notification, daysInAdvance: days } : notification
-      )
-    }));
+  const handleNotificationDaysChange = async (id: string, days: number) => {
+    await updateDefaultNotification(id, { daysInAdvance: days });
   };
   
-  const handlePreferenceToggle = (key: keyof UserSettings['notificationPreference'], value: boolean) => {
-    setSettings(prev => ({
-      ...prev,
-      notificationPreference: {
-        ...prev.notificationPreference,
-        [key]: value
-      }
-    }));
+  const handlePreferenceToggle = async (key: keyof UserSettings['notificationPreference'], value: boolean) => {
+    await updateNotificationPreference(key, value);
   };
   
-  const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
-    setSettings(prev => ({
-      ...prev,
-      theme
-    }));
+  const handleThemeChange = async (theme: 'light' | 'dark' | 'system') => {
+    await updateSetting('theme', theme);
   };
   
-  const handleCurrencyChange = (currency: string) => {
-    setSettings(prev => ({
-      ...prev,
-      currency
-    }));
+  const handleCurrencyChange = async (currency: string) => {
+    await updateSetting('currency', currency);
   };
 
-  const handlePhoneNumberChange = (phoneNumber: string) => {
-    setSettings(prev => ({
-      ...prev,
-      phoneNumber
-    }));
+  const handlePhoneNumberChange = async (phoneNumber: string) => {
+    await updateSetting('phoneNumber', phoneNumber);
   };
 
-  const handleTimezoneChange = (timezone: string) => {
-    setSettings(prev => ({
-      ...prev,
-      timezone
-    }));
+  const handleTimezoneChange = async (timezone: string) => {
+    await updateSetting('timezone', timezone);
   };
 
   const handleDownloadAllCalendar = () => {
@@ -117,12 +86,6 @@ const Settings: React.FC = () => {
     }
   };
   
-  const handleSave = () => {
-    // In a real app, this would save to a database
-    console.log('Saving settings:', settings);
-    toast.success('Settings saved successfully!');
-  };
-  
   const getThemeIcon = (theme: string) => {
     switch (theme) {
       case 'light':
@@ -133,6 +96,20 @@ const Settings: React.FC = () => {
         return <Laptop className="h-5 w-5" />;
     }
   };
+  
+  // Show loading state while settings are being fetched
+  if (settingsLoading || !settings) {
+    return (
+      <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading settings...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">
@@ -411,15 +388,6 @@ const Settings: React.FC = () => {
             </div>
           </div>
         </section>
-        
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => navigate('/')}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            <CheckCircle className="mr-2 h-4 w-4" /> Save Settings
-          </Button>
-        </div>
       </main>
     </div>
   );
