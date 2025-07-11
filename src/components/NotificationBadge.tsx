@@ -7,7 +7,7 @@ import {
   PopoverTrigger 
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { getUpcomingNotifications } from '@/lib/mockData';
+import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
 import { format } from 'date-fns';
 
 interface NotificationBadgeProps {
@@ -15,6 +15,70 @@ interface NotificationBadgeProps {
 }
 
 const NotificationBadge: React.FC<NotificationBadgeProps> = ({ className = '' }) => {
+  const { subscriptions } = useSupabaseSubscriptions();
+  
+  // Generate notifications from current user's actual subscriptions
+  const getUpcomingNotifications = () => {
+    const today = new Date();
+    const notifications: any[] = [];
+    
+    subscriptions.forEach(subscription => {
+      if (!subscription.active) return;
+      
+      // Calculate next payment date
+      let nextPaymentDate = new Date(subscription.startDate);
+      
+      if (subscription.cycle === 'monthly') {
+        while (nextPaymentDate <= today) {
+          nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+        }
+      } else if (subscription.cycle === 'yearly') {
+        while (nextPaymentDate <= today) {
+          nextPaymentDate.setFullYear(nextPaymentDate.getFullYear() + 1);
+        }
+      } else if (subscription.cycle === 'weekly') {
+        while (nextPaymentDate <= today) {
+          nextPaymentDate.setDate(nextPaymentDate.getDate() + 7);
+        }
+      }
+      
+      // Check if payment is within next 3 days
+      const daysUntilPayment = Math.ceil((nextPaymentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysUntilPayment >= 0 && daysUntilPayment <= 3) {
+        notifications.push({
+          id: `${subscription.id}-payment`,
+          subscriptionId: subscription.id,
+          subscriptionName: subscription.name,
+          type: 'payment-upcoming',
+          targetDate: nextPaymentDate,
+          isToday: daysUntilPayment === 0,
+          message: `Upcoming payment of $${subscription.price} for ${subscription.name}`,
+        });
+      }
+      
+      // Check trial ending (if applicable)
+      if (subscription.trialEndDate) {
+        const trialEndDate = new Date(subscription.trialEndDate);
+        const daysUntilTrialEnd = Math.ceil((trialEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilTrialEnd >= 0 && daysUntilTrialEnd <= 3) {
+          notifications.push({
+            id: `${subscription.id}-trial`,
+            subscriptionId: subscription.id,
+            subscriptionName: subscription.name,
+            type: 'trial-ending',
+            targetDate: trialEndDate,
+            isToday: daysUntilTrialEnd === 0,
+            message: `Your trial for ${subscription.name} ends in ${daysUntilTrialEnd === 0 ? 'today' : `${daysUntilTrialEnd} day${daysUntilTrialEnd > 1 ? 's' : ''}`}`,
+          });
+        }
+      }
+    });
+    
+    return notifications.sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime());
+  };
+
   const notifications = getUpcomingNotifications();
   const hasNotifications = notifications.length > 0;
 
