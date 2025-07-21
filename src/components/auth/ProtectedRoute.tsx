@@ -11,7 +11,6 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth()
-  const [authMode, setAuthMode] = React.useState<'signin' | 'signup'>('signin')
 
   if (loading) {
     return (
