@@ -1,107 +1,265 @@
-
 import React, { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAuth } from '@/contexts/AuthContext'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, Mail } from 'lucide-react'
 
-interface AuthFormProps {
-  mode: 'signin' | 'signup'
-  onToggleMode: () => void
-}
-
-export function AuthForm({ mode, onToggleMode }: AuthFormProps) {
+export default function AuthForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [resetEmail, setResetEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, signUp } = useAuth()
+  const [resetMode, setResetMode] = useState(false)
+  const { signIn, signUp, resetPassword } = useAuth()
+  const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    if (!email || !password) {
+      toast.error('Please fill in all fields')
+      return
+    }
 
+    setLoading(true)
     try {
-      if (mode === 'signin') {
-        const { error } = await signIn(email, password)
-        if (error) {
-          toast.error(error.message)
-        } else {
-          toast.success('Welcome back!')
-        }
+      const { error } = await signIn(email, password)
+      
+      if (error) {
+        toast.error(error.message)
       } else {
-        // Sign up mode
-        const { error } = await signUp(email, password)
-        if (error) {
-          toast.error(error.message)
-        } else {
-          toast.success('Account created! Please check your email to verify your account.')
-          // Switch to sign in mode after successful signup
-          onToggleMode()
-          // Clear the form
-          setEmail('')
-          setPassword('')
-        }
+        toast.success('Welcome back!')
+        navigate('/dashboard')
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error('An unexpected error occurred')
     } finally {
       setLoading(false)
     }
   }
 
-  return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>{mode === 'signin' ? 'Sign In' : 'Create Account'}</CardTitle>
-        <CardDescription>
-          {mode === 'signin' 
-            ? 'Enter your credentials to access your subscriptions'
-            : 'Create an account to start tracking your subscriptions'
-          }
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Loading...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
-          </Button>
-        </form>
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            onClick={onToggleMode}
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
-            {mode === 'signin' 
-              ? "Don't have an account? Sign up"
-              : 'Already have an account? Sign in'
-            }
-          </button>
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password) {
+      toast.error('Please fill in all fields')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const metadata = {
+        first_name: firstName,
+        last_name: lastName,
+        display_name: firstName || lastName ? `${firstName} ${lastName}`.trim() : undefined
+      }
+      
+      const { error } = await signUp(email, password, metadata)
+      
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.error('This email is already registered. Please sign in instead.')
+        } else {
+          toast.error(error.message)
+        }
+      } else {
+        toast.success('Account created successfully! Please check your email for verification.')
+        navigate('/dashboard')
+      }
+    } catch (error: any) {
+      toast.error('An unexpected error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!resetEmail) {
+      toast.error('Please enter your email address')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const { error } = await resetPassword(resetEmail)
+      
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success('Password reset email sent! Check your inbox.')
+        setResetMode(false)
+        setResetEmail('')
+      }
+    } catch (error: any) {
+      toast.error('An unexpected error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (resetMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20 px-4">
+        <div className="w-full max-w-md">
+          <Card className="border-border/50 shadow-lg">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+              <CardDescription>
+                Enter your email to receive password reset instructions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordReset} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  <Mail className="w-4 h-4 mr-2" />
+                  {loading ? 'Sending...' : 'Send Reset Email'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="w-full" 
+                  onClick={() => setResetMode(false)}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Sign In
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20 px-4">
+      <div className="w-full max-w-md">
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              Welcome to SubTracker
+            </CardTitle>
+            <CardDescription>
+              Manage your subscriptions with ease
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="signin" className="space-y-4 mt-4">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email">Email</Label>
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-password">Password</Label>
+                    <Input
+                      id="signin-password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Signing in...' : 'Sign In'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    className="w-full" 
+                    onClick={() => setResetMode(true)}
+                  >
+                    Forgot your password?
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="signup" className="space-y-4 mt-4">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="first-name">First Name</Label>
+                      <Input
+                        id="first-name"
+                        type="text"
+                        placeholder="John"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="last-name">Last Name</Label>
+                      <Input
+                        id="last-name"
+                        type="text"
+                        placeholder="Doe"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Create a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Creating account...' : 'Create Account'}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   )
 }

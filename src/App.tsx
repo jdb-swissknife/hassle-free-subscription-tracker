@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import AddSubscription from "./pages/AddSubscription";
 import SubscriptionDetail from "./pages/SubscriptionDetail";
 import Settings from "./pages/Settings";
+import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const AppRoutes = () => {
           <Route path="/add" element={<AddSubscription />} />
           <Route path="/subscription/:id" element={<SubscriptionDetail />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/account" element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatedTransition>

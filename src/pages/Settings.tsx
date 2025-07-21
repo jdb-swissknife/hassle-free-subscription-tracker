@@ -28,6 +28,7 @@ import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { CalendarService } from '@/services/calendarService';
 import { toast } from 'sonner';
+import DataExport from '@/components/DataExport';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -358,6 +359,8 @@ const Settings: React.FC = () => {
           </div>
         </section>
 
+        <DataExport />
+
         <section className="glass-card p-6">
           <h2 className="text-xl font-medium mb-4 flex items-center">
             <User className="h-5 w-5 mr-2 text-primary" />
@@ -368,6 +371,17 @@ const Settings: React.FC = () => {
             <div>
               <Label className="block mb-2">Email</Label>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
+            </div>
+
+            <div>
+              <Button
+                onClick={() => navigate('/account')}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                Manage Account
+              </Button>
             </div>
             
             <Separator />

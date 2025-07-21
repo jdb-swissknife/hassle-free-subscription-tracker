@@ -1,7 +1,7 @@
 
 import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { AuthForm } from './AuthForm'
+import AuthForm from './AuthForm'
 import { Card, CardContent } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 
@@ -29,14 +29,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <AuthForm 
-          mode={authMode} 
-          onToggleMode={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')} 
-        />
-      </div>
-    )
+    return <AuthForm />
   }
 
   return <>{children}</>
