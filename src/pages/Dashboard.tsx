@@ -38,7 +38,13 @@ const Dashboard: React.FC = () => {
   const yearlySpend = monthlySpend * 12;
   const freeTrials = getFreeTrials();
   
-  console.log('Dashboard - Data Summary:', {
+  console.log('🏠 Dashboard - MOBILE CHECK:', {
+    windowWidth: window.innerWidth,
+    isMobile: window.innerWidth < 768,
+    userAgent: navigator.userAgent
+  });
+  
+  console.log('🏠 Dashboard - Data Summary:', {
     totalSubscriptions: subscriptions.length,
     activeSubscriptions: activeSubscriptions.length, 
     freeTrials: freeTrials.length,
@@ -46,10 +52,11 @@ const Dashboard: React.FC = () => {
     user: !!user
   });
   
-  console.log('Dashboard - Free Trials Details:', freeTrials.map(ft => ({
+  console.log('🏠 Dashboard - Free Trials Details:', freeTrials.map(ft => ({
     name: ft.name,
     trialEndDate: ft.trialEndDate,
-    active: ft.active
+    active: ft.active,
+    daysLeft: ft.trialEndDate ? Math.ceil((new Date(ft.trialEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null
   })));
   
   const filteredSubscriptions = searchSubscriptions(searchTerm)
