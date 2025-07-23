@@ -29,7 +29,7 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   // Determine urgency styling
   const isUrgent = daysLeft <= 3;
   const cardStyles = isUrgent 
-    ? "border-red-500/50 bg-red-50/40 dark:bg-red-900/20 ring-2 ring-red-500/20 animate-pulse"
+    ? "border-red-600 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25"
     : "border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10";
 
   return (
@@ -50,7 +50,7 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
         <div className={cn(
           "flex items-center text-xs gap-1",
           isUrgent 
-            ? "text-red-700 dark:text-red-400 font-medium" 
+            ? "text-red-800 dark:text-red-300 font-bold" 
             : "text-yellow-600 dark:text-yellow-400"
         )}>
           {isUrgent ? (

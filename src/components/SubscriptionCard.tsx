@@ -84,7 +84,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const getStatusStyles = () => {
     switch (status) {
       case 'trial-urgent':
-        return 'border-red-500/50 bg-red-50/40 dark:bg-red-900/20 ring-2 ring-red-500/20 animate-pulse';
+        return 'border-red-600 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25';
       case 'trial':
         return 'border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10';
       case 'upcoming':
@@ -104,7 +104,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     switch (status) {
       case 'trial-urgent':
         return (
-          <div className="flex items-center text-red-700 dark:text-red-400 text-xs gap-1 font-medium">
+          <div className="flex items-center text-red-800 dark:text-red-300 text-xs gap-1 font-bold">
             <AlertCircle className="h-3 w-3 animate-pulse" />
             <span>
               Trial expires {formatDistanceToNow(trialEndDateObj!, { addSuffix: true })}!
