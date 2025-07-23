@@ -10,6 +10,8 @@ interface FreeTrialsListProps {
 }
 
 const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick }) => {
+  console.log('FreeTrialsList received:', freeTrials);
+  
   if (freeTrials.length === 0) return null;
 
   const today = new Date();
@@ -18,7 +20,9 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
   const expiringTrials = freeTrials.filter(sub => {
     if (!sub.trialEndDate) return false;
     const daysLeft = differenceInDays(new Date(sub.trialEndDate), today);
-    return daysLeft >= 0 && daysLeft <= 3;
+    const isExpiring = daysLeft >= 0 && daysLeft <= 3;
+    console.log(`${sub.name}: ${daysLeft} days left, expiring: ${isExpiring}`);
+    return isExpiring;
   });
   
   const regularTrials = freeTrials.filter(sub => {
@@ -26,6 +30,9 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
     const daysLeft = differenceInDays(new Date(sub.trialEndDate), today);
     return daysLeft > 3;
   });
+
+  console.log('Expiring trials:', expiringTrials);
+  console.log('Regular trials:', regularTrials);
 
   return (
     <div className="mb-6">

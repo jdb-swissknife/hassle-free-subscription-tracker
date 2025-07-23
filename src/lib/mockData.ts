@@ -9,7 +9,7 @@ export const mockSubscriptions: Subscription[] = [
     price: 15.99,
     cycle: 'monthly',
     startDate: new Date('2023-01-15'),
-    trialEndDate: new Date('2023-02-15'),
+    trialEndDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
     category: 'entertainment',
     logo: 'netflix-logo',
     color: '#E50914',
@@ -111,6 +111,50 @@ export const mockSubscriptions: Subscription[] = [
         type: 'payment-upcoming',
         enabled: false,
         daysInAdvance: 2,
+      }
+    ],
+    active: true,
+  },
+  {
+    id: '6',
+    name: 'Disney+',
+    provider: 'Disney',
+    price: 7.99,
+    cycle: 'monthly',
+    startDate: new Date('2024-01-01'),
+    trialEndDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
+    category: 'entertainment',
+    logo: 'disney-logo',
+    color: '#113CCF',
+    paymentMethod: 'Visa ending in 1234',
+    notifications: [
+      {
+        id: 'notif-7',
+        type: 'trial-ending',
+        enabled: true,
+        daysInAdvance: 3,
+      }
+    ],
+    active: true,
+  },
+  {
+    id: '7',
+    name: 'Hulu',
+    provider: 'Hulu',
+    price: 12.99,
+    cycle: 'monthly',
+    startDate: new Date('2024-01-01'),
+    trialEndDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+    category: 'entertainment',
+    logo: 'hulu-logo',
+    color: '#1CE783',
+    paymentMethod: 'MasterCard ending in 5678',
+    notifications: [
+      {
+        id: 'notif-8',
+        type: 'trial-ending',
+        enabled: true,
+        daysInAdvance: 3,
       }
     ],
     active: true,
