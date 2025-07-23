@@ -40,6 +40,19 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
 
   return (
     <div className="mb-6">
+      {/* DEBUG INFO - VISIBLE ON SCREEN */}
+      <div className="bg-yellow-200 p-2 mb-4 text-xs border">
+        <div>🔍 DEBUG: Total free trials: {freeTrials.length}</div>
+        <div>📱 Window width: {window.innerWidth}px (Mobile: {window.innerWidth < 768 ? 'YES' : 'NO'})</div>
+        <div>⚠️ Expiring trials: {expiringTrials.length}</div>
+        <div>📅 Regular trials: {regularTrials.length}</div>
+        {freeTrials.map(t => (
+          <div key={t.id}>
+            {t.name}: {t.trialEndDate ? `${differenceInDays(new Date(t.trialEndDate), today)} days` : 'No date'}
+          </div>
+        ))}
+      </div>
+      
       {/* Expiring Free Trials Section */}
       {expiringTrials.length > 0 && (
         <div className="mb-4">
