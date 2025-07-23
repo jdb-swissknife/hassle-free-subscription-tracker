@@ -11,8 +11,12 @@ interface FreeTrialsListProps {
 
 const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick }) => {
   console.log('FreeTrialsList received:', freeTrials);
+  console.log('FreeTrialsList - Window size:', { width: window.innerWidth, isMobile: window.innerWidth < 768 });
   
-  if (freeTrials.length === 0) return null;
+  if (freeTrials.length === 0) {
+    console.log('FreeTrialsList - No free trials to display');
+    return null;
+  }
 
   const today = new Date();
   

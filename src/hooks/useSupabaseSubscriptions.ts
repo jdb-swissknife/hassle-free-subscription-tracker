@@ -196,9 +196,12 @@ export function useSupabaseSubscriptions() {
   // Get all free trials
   const getFreeTrials = useCallback(() => {
     const today = new Date()
-    return subscriptions.filter(sub => 
+    const freeTrials = subscriptions.filter(sub => 
       sub.active && sub.trialEndDate && new Date(sub.trialEndDate) > today
     )
+    console.log('getFreeTrials - All subscriptions:', subscriptions.map(s => ({ name: s.name, trialEndDate: s.trialEndDate, active: s.active })))
+    console.log('getFreeTrials - Free trials found:', freeTrials.map(s => ({ name: s.name, trialEndDate: s.trialEndDate })))
+    return freeTrials
   }, [subscriptions])
 
   // Search subscriptions
