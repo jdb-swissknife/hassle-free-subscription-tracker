@@ -13,8 +13,10 @@ import SearchFilterBar from '@/components/dashboard/SearchFilterBar';
 import SubscriptionTabContent from '@/components/dashboard/SubscriptionTabContent';
 import SubscriptionStats from '@/components/SubscriptionStats';
 import QuickAdd from '@/components/dashboard/QuickAdd';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { 
     subscriptions,
@@ -35,6 +37,20 @@ const Dashboard: React.FC = () => {
   const monthlySpend = calculateMonthlySpend();
   const yearlySpend = monthlySpend * 12;
   const freeTrials = getFreeTrials();
+  
+  console.log('Dashboard - Data Summary:', {
+    totalSubscriptions: subscriptions.length,
+    activeSubscriptions: activeSubscriptions.length, 
+    freeTrials: freeTrials.length,
+    loading,
+    user: !!user
+  });
+  
+  console.log('Dashboard - Free Trials Details:', freeTrials.map(ft => ({
+    name: ft.name,
+    trialEndDate: ft.trialEndDate,
+    active: ft.active
+  })));
   
   const filteredSubscriptions = searchSubscriptions(searchTerm)
     .filter(sub => filterActive ? sub.active : true)

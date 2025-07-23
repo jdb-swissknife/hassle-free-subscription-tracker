@@ -37,8 +37,10 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   console.log('FreeTrialCard - Styling Decision:', { name, isUrgent, daysLeft, isMobile });
   
   const cardStyles = isUrgent 
-    ? `border-red-500 ${isMobile ? 'border-4' : 'border-2'} !bg-red-100 dark:!bg-red-900 ring-4 ring-red-500/60 animate-pulse shadow-2xl shadow-red-500/40 transform ${isMobile ? 'scale-[1.02]' : ''}`
+    ? `border-red-500 border-4 bg-red-100 dark:bg-red-900 ring-4 ring-red-500/60 animate-pulse shadow-2xl shadow-red-500/40 transform scale-[1.02] urgent-trial-mobile`
     : "border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10";
+
+  console.log('FreeTrialCard - Final styles applied:', cardStyles);
 
   return (
     <div 
