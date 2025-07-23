@@ -33,6 +33,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   // Check if in trial period
   const inTrial = trialEndDate && isAfter(new Date(trialEndDate), today);
   
+  // Check if trial is expiring soon (within 3 days)
+  const trialExpiringSoon = trialEndDate && inTrial && 
+    Math.ceil((new Date(trialEndDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) <= 3;
+  
   // Calculate next billing date
   const calculateNextBillingDate = () => {
     let nextDate = new Date(startDate);
@@ -68,6 +72,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   // Determine card status
   const getCardStatus = () => {
     if (!active) return 'inactive';
+    if (trialExpiringSoon) return 'trial-urgent';
     if (inTrial) return 'trial';
     if (isUpcoming) return 'upcoming';
     return 'active';
@@ -78,6 +83,8 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   // Card status styles
   const getStatusStyles = () => {
     switch (status) {
+      case 'trial-urgent':
+        return 'border-red-500/50 bg-red-50/40 dark:bg-red-900/20 ring-2 ring-red-500/20 animate-pulse';
       case 'trial':
         return 'border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10';
       case 'upcoming':
@@ -95,6 +102,15 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     const trialEndDateObj = trialEndDate ? new Date(trialEndDate) : undefined;
     
     switch (status) {
+      case 'trial-urgent':
+        return (
+          <div className="flex items-center text-red-700 dark:text-red-400 text-xs gap-1 font-medium">
+            <AlertCircle className="h-3 w-3 animate-pulse" />
+            <span>
+              Trial expires {formatDistanceToNow(trialEndDateObj!, { addSuffix: true })}!
+            </span>
+          </div>
+        );
       case 'trial':
         return (
           <div className="flex items-center text-yellow-600 dark:text-yellow-400 text-xs gap-1">
