@@ -26,10 +26,10 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   // Skip if trial has ended
   if (daysLeft < 0) return null;
   
-  // Determine urgency styling
+  // Determine urgency styling - enhanced for mobile visibility
   const isUrgent = daysLeft <= 3;
   const cardStyles = isUrgent 
-    ? "border-red-600 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25"
+    ? "border-red-600 border-2 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25 bg-opacity-90 dark:bg-opacity-90"
     : "border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10";
 
   return (

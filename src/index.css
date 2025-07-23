@@ -136,4 +136,26 @@
   .page-transition-wrapper {
     @apply w-full min-h-screen;
   }
+
+  /* Enhanced mobile styles for urgent notifications */
+  @media (max-width: 768px) {
+    .animate-pulse {
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    /* Force stronger red backgrounds on mobile */
+    .bg-red-100 {
+      background-color: rgb(254 226 226) !important;
+    }
+    
+    .dark .bg-red-950 {
+      background-color: rgb(69 10 10) !important;
+    }
+    
+    /* Ensure borders are visible on mobile */
+    .border-red-600 {
+      border-color: rgb(220 38 38) !important;
+      border-width: 2px !important;
+    }
+  }
 }

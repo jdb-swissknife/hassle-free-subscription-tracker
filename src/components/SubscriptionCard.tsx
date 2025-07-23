@@ -84,7 +84,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const getStatusStyles = () => {
     switch (status) {
       case 'trial-urgent':
-        return 'border-red-600 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25';
+        return 'border-red-600 border-2 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25 bg-opacity-90 dark:bg-opacity-90';
       case 'trial':
         return 'border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10';
       case 'upcoming':
