@@ -4,6 +4,7 @@ import { differenceInDays } from 'date-fns';
 import { Clock, AlertCircle } from 'lucide-react';
 import { Subscription } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FreeTrialCardProps {
   subscription: Subscription;
@@ -17,6 +18,7 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   className = '',
 }) => {
   const { name, provider, trialEndDate, color } = subscription;
+  const isMobile = useIsMobile();
   
   if (!trialEndDate) return null;
   
@@ -29,7 +31,7 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   // Determine urgency styling - enhanced for mobile visibility
   const isUrgent = daysLeft <= 3;
   const cardStyles = isUrgent 
-    ? "border-red-600 border-2 bg-red-100 dark:bg-red-950 ring-4 ring-red-500/50 animate-pulse shadow-lg shadow-red-500/25 bg-opacity-90 dark:bg-opacity-90"
+    ? `border-red-500 ${isMobile ? 'border-4' : 'border-2'} !bg-red-100 dark:!bg-red-900 ring-4 ring-red-500/60 animate-pulse shadow-2xl shadow-red-500/40 transform ${isMobile ? 'scale-[1.02]' : ''}`
     : "border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10";
 
   return (

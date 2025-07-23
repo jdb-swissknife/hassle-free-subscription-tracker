@@ -140,22 +140,42 @@
   /* Enhanced mobile styles for urgent notifications */
   @media (max-width: 768px) {
     .animate-pulse {
-      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
     }
     
-    /* Force stronger red backgrounds on mobile */
-    .bg-red-100 {
-      background-color: rgb(254 226 226) !important;
-    }
-    
-    .dark .bg-red-950 {
-      background-color: rgb(69 10 10) !important;
-    }
-    
-    /* Ensure borders are visible on mobile */
+    /* Force bright red styling for expiring trials on mobile */
+    .border-red-500,
     .border-red-600 {
-      border-color: rgb(220 38 38) !important;
-      border-width: 2px !important;
+      border-color: #ef4444 !important;
+      border-width: 4px !important;
+    }
+    
+    .bg-red-100 {
+      background-color: rgba(239, 68, 68, 0.3) !important;
+    }
+    
+    .dark .bg-red-900,
+    .dark .bg-red-950 {
+      background-color: rgba(239, 68, 68, 0.2) !important;
+    }
+    
+    .shadow-red-500\/40 {
+      box-shadow: 0 10px 30px -5px rgba(239, 68, 68, 0.6) !important;
+    }
+    
+    .text-red-800 {
+      color: #991b1b !important;
+      font-weight: 700 !important;
+    }
+    
+    .dark .text-red-300 {
+      color: #fca5a5 !important;
+      font-weight: 700 !important;
+    }
+    
+    /* Force scale transform on mobile for expiring trials */
+    .scale-\[1\.02\] {
+      transform: scale(1.02) !important;
     }
   }
 }
