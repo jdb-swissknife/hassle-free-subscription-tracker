@@ -12,7 +12,7 @@ import {
   Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
+import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
 import { CalendarService } from '@/services/calendarService';
 import { format, differenceInDays, addDays } from 'date-fns';
 import {
@@ -34,7 +34,7 @@ const SubscriptionDetail: React.FC = () => {
   const {
     getSubscription,
     deleteSubscription
-  } = useSubscriptions();
+  } = useSupabaseSubscriptions();
   
   const calendarService = CalendarService.getInstance();
   const subscription = getSubscription(id || '');
