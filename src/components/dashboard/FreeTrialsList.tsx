@@ -41,7 +41,7 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
   return (
     <div className="mb-6">
       {/* DEBUG INFO - VISIBLE ON SCREEN */}
-      <div className="bg-yellow-200 p-2 mb-4 text-xs border">
+      <div className="bg-red-500 text-white p-4 mb-4 text-lg border-4 border-black fixed top-0 left-0 right-0 z-50">MOBILE DEBUG VISIBLE
         <div>🔍 DEBUG: Total free trials: {freeTrials.length}</div>
         <div>📱 Window width: {window.innerWidth}px (Mobile: {window.innerWidth < 768 ? 'YES' : 'NO'})</div>
         <div>⚠️ Expiring trials: {expiringTrials.length}</div>
