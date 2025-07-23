@@ -55,14 +55,22 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
         </div>
         
         <div>
-          <Label htmlFor="provider">Provider</Label>
-          <Input
-            id="provider"
-            name="provider"
-            value={subscription.provider || ''}
-            onChange={onInputChange}
-            className="mt-1"
-          />
+          <Label htmlFor="paymentMethod">Payment Method</Label>
+          <Select
+            value={subscription.paymentMethod}
+            onValueChange={(value) => onSelectChange('paymentMethod', value)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Select payment method" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="card">Card</SelectItem>
+              <SelectItem value="paypal">PayPal</SelectItem>
+              <SelectItem value="apple">Apple Pay</SelectItem>
+              <SelectItem value="bank">Bank Transfer</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
