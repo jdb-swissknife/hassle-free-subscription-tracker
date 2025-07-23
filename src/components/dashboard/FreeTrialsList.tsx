@@ -10,11 +10,7 @@ interface FreeTrialsListProps {
 }
 
 const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick }) => {
-  console.log('FreeTrialsList received:', freeTrials);
-  console.log('FreeTrialsList - Window size:', { width: window.innerWidth, isMobile: window.innerWidth < 768 });
-  
   if (freeTrials.length === 0) {
-    console.log('FreeTrialsList - No free trials to display');
     return null;
   }
 
@@ -24,9 +20,7 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
   const expiringTrials = freeTrials.filter(sub => {
     if (!sub.trialEndDate) return false;
     const daysLeft = differenceInDays(new Date(sub.trialEndDate), today);
-    const isExpiring = daysLeft >= 0 && daysLeft <= 3;
-    console.log(`${sub.name}: ${daysLeft} days left, expiring: ${isExpiring}`);
-    return isExpiring;
+    return daysLeft >= 0 && daysLeft <= 3;
   });
   
   const regularTrials = freeTrials.filter(sub => {
@@ -35,24 +29,8 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
     return daysLeft > 3;
   });
 
-  console.log('Expiring trials:', expiringTrials);
-  console.log('Regular trials:', regularTrials);
-
   return (
     <div className="mb-6">
-      {/* DEBUG INFO - VISIBLE ON SCREEN */}
-      <div className="bg-red-500 text-white p-4 mb-4 text-lg border-4 border-black fixed top-0 left-0 right-0 z-50">MOBILE DEBUG VISIBLE
-        <div>🔍 DEBUG: Total free trials: {freeTrials.length}</div>
-        <div>📱 Window width: {window.innerWidth}px (Mobile: {window.innerWidth < 768 ? 'YES' : 'NO'})</div>
-        <div>⚠️ Expiring trials: {expiringTrials.length}</div>
-        <div>📅 Regular trials: {regularTrials.length}</div>
-        {freeTrials.map(t => (
-          <div key={t.id}>
-            {t.name}: {t.trialEndDate ? `${differenceInDays(new Date(t.trialEndDate), today)} days` : 'No date'}
-          </div>
-        ))}
-      </div>
-      
       {/* Expiring Free Trials Section */}
       {expiringTrials.length > 0 && (
         <div className="mb-4">
