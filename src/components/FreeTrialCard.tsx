@@ -20,27 +20,44 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   const { name, provider, trialEndDate, color } = subscription;
   const isMobile = useIsMobile();
   
-  console.log('FreeTrialCard - Mobile Detection:', { isMobile, subscription: name });
+  console.log('🔍 FreeTrialCard Debug:', { 
+    name, 
+    isMobile, 
+    windowWidth: window.innerWidth,
+    userAgent: navigator.userAgent.includes('Mobile')
+  });
   
   if (!trialEndDate) return null;
   
   const today = new Date();
   const daysLeft = differenceInDays(new Date(trialEndDate), today);
   
-  console.log('FreeTrialCard - Trial Info:', { name, daysLeft, trialEndDate });
+  console.log('📅 Trial Date Info:', { 
+    name, 
+    daysLeft, 
+    trialEndDate,
+    today: today.toISOString(),
+    parsedTrialDate: new Date(trialEndDate).toISOString()
+  });
   
   // Skip if trial has ended
   if (daysLeft < 0) return null;
   
   // Determine urgency styling - enhanced for mobile visibility
   const isUrgent = daysLeft <= 3;
-  console.log('FreeTrialCard - Styling Decision:', { name, isUrgent, daysLeft, isMobile });
+  console.log('🚨 Styling Decision:', { 
+    name, 
+    isUrgent, 
+    daysLeft, 
+    isMobile,
+    shouldShowUrgent: isUrgent && isMobile
+  });
   
   const cardStyles = isUrgent 
     ? `border-red-500 border-4 bg-red-100 dark:bg-red-900 ring-4 ring-red-500/60 animate-pulse shadow-2xl shadow-red-500/40 transform scale-[1.02] urgent-trial-mobile`
     : "border-yellow-300/30 bg-yellow-50/30 dark:bg-yellow-900/10";
 
-  console.log('FreeTrialCard - Final styles applied:', cardStyles);
+  console.log('🎨 Final styles applied:', { name, cardStyles, isUrgent });
 
   return (
     <div 
