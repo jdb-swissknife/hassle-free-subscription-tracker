@@ -127,6 +127,14 @@ const Dashboard: React.FC = () => {
           yearlySpend={yearlySpend}
         />
         
+        {(() => {
+          console.log('🚨 BEFORE FreeTrialsList render:', { 
+            freeTrialsLength: freeTrials.length, 
+            freeTrialsData: freeTrials 
+          });
+          return null;
+        })()}
+        
         <FreeTrialsList 
           freeTrials={freeTrials} 
           onCardClick={handleCardClick} 

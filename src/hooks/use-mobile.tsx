@@ -7,7 +7,13 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      console.log('📱 useIsMobile hook:', { 
+        width: window.innerWidth, 
+        mobile, 
+        breakpoint: MOBILE_BREAKPOINT 
+      });
+      setIsMobile(mobile);
     }
     
     // Check immediately
