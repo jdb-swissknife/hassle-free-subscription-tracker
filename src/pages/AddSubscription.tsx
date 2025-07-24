@@ -117,6 +117,7 @@ const AddSubscription: React.FC = () => {
       trialEndDate: hasTrial ? trialEndDate : undefined,
       category: subscription.category as SubscriptionCategory,
       active: true,
+      status: 'active',
       notifications: subscription.notifications || createDefaultNotifications(),
       color: subscription.color || getRandomColor(),
       description: subscription.description

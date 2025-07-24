@@ -41,6 +41,8 @@ export function useSupabaseSubscriptions() {
         description: sub.description,
         notifications: [],
         active: sub.active,
+        status: (sub.status || 'active') as 'active' | 'cancelled' | 'expired' | 'paused',
+        cancelledAt: sub.cancelled_at ? new Date(sub.cancelled_at) : undefined,
       }))
 
       setSubscriptions(transformedSubscriptions)
@@ -78,6 +80,8 @@ export function useSupabaseSubscriptions() {
             end_date: subscription.endDate?.toISOString(),
             trial_end_date: subscription.trialEndDate?.toISOString(),
             active: subscription.active,
+            status: subscription.status || 'active',
+            cancelled_at: subscription.cancelledAt?.toISOString(),
           }
         ])
         .select()
@@ -100,6 +104,8 @@ export function useSupabaseSubscriptions() {
           description: data.description,
           notifications: [],
           active: data.active,
+          status: (data.status || 'active') as 'active' | 'cancelled' | 'expired' | 'paused',
+          cancelledAt: data.cancelled_at ? new Date(data.cancelled_at) : undefined,
         }
 
         setSubscriptions(prev => [newSubscription, ...prev])
@@ -131,6 +137,8 @@ export function useSupabaseSubscriptions() {
       if (updates.endDate !== undefined) updateData.end_date = updates.endDate?.toISOString()
       if (updates.trialEndDate !== undefined) updateData.trial_end_date = updates.trialEndDate?.toISOString()
       if (updates.active !== undefined) updateData.active = updates.active
+      if (updates.status !== undefined) updateData.status = updates.status
+      if (updates.cancelledAt !== undefined) updateData.cancelled_at = updates.cancelledAt?.toISOString()
 
       const { error } = await supabase
         .from('subscriptions')
@@ -216,15 +224,55 @@ export function useSupabaseSubscriptions() {
     )
   }, [subscriptions])
 
+  // Cancel a subscription (mark as cancelled instead of deleting)
+  const cancelSubscription = useCallback(async (id: string) => {
+    if (!user) return
+
+    try {
+      const cancelledAt = new Date()
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({ 
+          status: 'cancelled',
+          cancelled_at: cancelledAt.toISOString(),
+          active: false
+        })
+        .eq('id', id)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+
+      setSubscriptions(prev =>
+        prev.map(sub => (sub.id === id ? { 
+          ...sub, 
+          status: 'cancelled' as const, 
+          cancelledAt,
+          active: false 
+        } : sub))
+      )
+      toast.success('Subscription cancelled successfully!')
+    } catch (error: any) {
+      console.error('Error cancelling subscription:', error)
+      toast.error('Failed to cancel subscription')
+    }
+  }, [user])
+
+  // Get cancelled subscriptions
+  const getCancelledSubscriptions = useCallback(() => {
+    return subscriptions.filter(sub => sub.status === 'cancelled')
+  }, [subscriptions])
+
   return {
     subscriptions,
     loading,
     addSubscription,
     updateSubscription,
     deleteSubscription,
+    cancelSubscription,
     getSubscription,
     calculateMonthlySpend,
     getActiveSubscriptions,
+    getCancelledSubscriptions,
     getFreeTrials,
     searchSubscriptions,
     refreshSubscriptions: fetchSubscriptions,

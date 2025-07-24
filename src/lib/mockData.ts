@@ -30,6 +30,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   },
   {
     id: '2',
@@ -51,6 +52,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   },
   {
     id: '3',
@@ -72,6 +74,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   },
   {
     id: '4',
@@ -93,6 +96,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   },
   {
     id: '5',
@@ -114,6 +118,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   },
   {
     id: '6',
@@ -136,6 +141,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   },
   {
     id: '7',
@@ -158,6 +164,7 @@ export const mockSubscriptions: Subscription[] = [
       }
     ],
     active: true,
+    status: 'active',
   }
 ];
 

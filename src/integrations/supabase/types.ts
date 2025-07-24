@@ -47,6 +47,7 @@ export type Database = {
       subscriptions: {
         Row: {
           active: boolean
+          cancelled_at: string | null
           category: string | null
           color: string | null
           created_at: string
@@ -58,6 +59,7 @@ export type Database = {
           price: number
           provider: string
           start_date: string
+          status: string | null
           trial_end_date: string | null
           updated_at: string
           user_id: string
@@ -65,6 +67,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          cancelled_at?: string | null
           category?: string | null
           color?: string | null
           created_at?: string
@@ -76,6 +79,7 @@ export type Database = {
           price?: number
           provider: string
           start_date?: string
+          status?: string | null
           trial_end_date?: string | null
           updated_at?: string
           user_id: string
@@ -83,6 +87,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          cancelled_at?: string | null
           category?: string | null
           color?: string | null
           created_at?: string
@@ -94,6 +99,7 @@ export type Database = {
           price?: number
           provider?: string
           start_date?: string
+          status?: string | null
           trial_end_date?: string | null
           updated_at?: string
           user_id?: string

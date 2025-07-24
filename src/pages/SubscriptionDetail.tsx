@@ -33,7 +33,8 @@ const SubscriptionDetail: React.FC = () => {
   
   const {
     getSubscription,
-    deleteSubscription
+    deleteSubscription,
+    cancelSubscription
   } = useSupabaseSubscriptions();
   
   const calendarService = CalendarService.getInstance();
@@ -125,6 +126,11 @@ const SubscriptionDetail: React.FC = () => {
     navigate('/dashboard');
   };
 
+  const handleCancel = () => {
+    cancelSubscription(id || '');
+    navigate('/dashboard');
+  };
+
   const handleDownloadCalendar = () => {
     calendarService.downloadSubscriptionCalendar(subscription);
     toast.success('Calendar file downloaded successfully!');
@@ -171,19 +177,24 @@ const SubscriptionDetail: React.FC = () => {
             <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <DialogTrigger asChild>
                 <Button 
-                  variant="destructive" 
+                  variant={subscription.status === 'active' ? "outline" : "destructive"}
                   size="sm"
                   className="gap-1"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Delete
+                  {subscription.status === 'active' ? 'Cancel' : 'Delete'}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Delete Subscription</DialogTitle>
+                  <DialogTitle>
+                    {subscription.status === 'active' ? 'Cancel' : 'Delete'} Subscription
+                  </DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to delete {name}? This action cannot be undone.
+                    {subscription.status === 'active' 
+                      ? `Are you sure you want to cancel ${name}? This will mark it as cancelled but keep it in your records.`
+                      : `Are you sure you want to delete ${name}? This action cannot be undone.`
+                    }
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -194,10 +205,10 @@ const SubscriptionDetail: React.FC = () => {
                     Cancel
                   </Button>
                   <Button 
-                    variant="destructive" 
-                    onClick={handleDelete}
+                    variant={subscription.status === 'active' ? "outline" : "destructive"}
+                    onClick={subscription.status === 'active' ? handleCancel : handleDelete}
                   >
-                    Delete
+                    {subscription.status === 'active' ? 'Cancel Subscription' : 'Delete'}
                   </Button>
                 </DialogFooter>
               </DialogContent>

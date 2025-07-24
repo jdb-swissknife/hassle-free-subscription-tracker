@@ -11,6 +11,7 @@ import DashboardStats from '@/components/dashboard/DashboardStats';
 import FreeTrialsList from '@/components/dashboard/FreeTrialsList';
 import SearchFilterBar from '@/components/dashboard/SearchFilterBar';
 import SubscriptionTabContent from '@/components/dashboard/SubscriptionTabContent';
+import CancelledSubscriptionsList from '@/components/dashboard/CancelledSubscriptionsList';
 import SubscriptionStats from '@/components/SubscriptionStats';
 import QuickAdd from '@/components/dashboard/QuickAdd';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,8 +24,10 @@ const Dashboard: React.FC = () => {
     loading,
     calculateMonthlySpend,
     getActiveSubscriptions,
+    getCancelledSubscriptions,
     getFreeTrials,
-    searchSubscriptions
+    searchSubscriptions,
+    deleteSubscription
   } = useSupabaseSubscriptions();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +37,7 @@ const Dashboard: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<SubscriptionCategory | 'all'>('all');
   
   const activeSubscriptions = getActiveSubscriptions();
+  const cancelledSubscriptions = getCancelledSubscriptions();
   const monthlySpend = calculateMonthlySpend();
   const yearlySpend = monthlySpend * 12;
   const freeTrials = getFreeTrials();
@@ -60,7 +64,7 @@ const Dashboard: React.FC = () => {
   })));
   
   const filteredSubscriptions = searchSubscriptions(searchTerm)
-    .filter(sub => filterActive ? sub.active : true)
+    .filter(sub => filterActive ? sub.status === 'active' : sub.status !== 'cancelled')
     .filter(sub => categoryFilter === 'all' ? true : sub.category === categoryFilter)
     .sort((a, b) => {
       if (sortBy === 'name') {
@@ -167,6 +171,7 @@ const Dashboard: React.FC = () => {
                 <TabsTrigger value="productivity">Productivity</TabsTrigger>
                 <TabsTrigger value="utilities">Utilities</TabsTrigger>
                 <TabsTrigger value="other">Other</TabsTrigger>
+                <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
               </TabsList>
               <TabsContent value="all">
                 <SubscriptionTabContent 
@@ -210,6 +215,12 @@ const Dashboard: React.FC = () => {
                   searchTerm={searchTerm}
                   onAddNew={handleAddNew}
                   onCardClick={handleCardClick}
+                />
+              </TabsContent>
+              <TabsContent value="cancelled">
+                <CancelledSubscriptionsList 
+                  cancelledSubscriptions={cancelledSubscriptions}
+                  onDelete={deleteSubscription}
                 />
               </TabsContent>
             </Tabs>

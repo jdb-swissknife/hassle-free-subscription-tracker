@@ -14,7 +14,9 @@ export type Subscription = {
   description?: string;
   paymentMethod?: string;
   notifications: NotificationSetting[];
-  active: boolean;
+  active: boolean; // Keep for backward compatibility
+  status: 'active' | 'cancelled' | 'expired' | 'paused';
+  cancelledAt?: Date;
 };
 
 export type SubscriptionCategory = 
