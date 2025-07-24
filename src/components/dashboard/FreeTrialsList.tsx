@@ -15,17 +15,23 @@ const FreeTrialsList: React.FC<FreeTrialsListProps> = ({ freeTrials, onCardClick
   }
 
   const today = new Date();
+  // Normalize time to avoid timezone issues
+  today.setHours(0, 0, 0, 0);
   
   // Separate expiring (≤3 days) from regular free trials
   const expiringTrials = freeTrials.filter(sub => {
     if (!sub.trialEndDate) return false;
-    const daysLeft = differenceInDays(new Date(sub.trialEndDate), today);
+    const trialEnd = new Date(sub.trialEndDate);
+    trialEnd.setHours(0, 0, 0, 0);
+    const daysLeft = differenceInDays(trialEnd, today);
     return daysLeft >= 0 && daysLeft <= 3;
   });
   
   const regularTrials = freeTrials.filter(sub => {
     if (!sub.trialEndDate) return false;
-    const daysLeft = differenceInDays(new Date(sub.trialEndDate), today);
+    const trialEnd = new Date(sub.trialEndDate);
+    trialEnd.setHours(0, 0, 0, 0);
+    const daysLeft = differenceInDays(trialEnd, today);
     return daysLeft > 3;
   });
 

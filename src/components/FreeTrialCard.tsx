@@ -30,20 +30,26 @@ const FreeTrialCard: React.FC<FreeTrialCardProps> = ({
   if (!trialEndDate) return null;
   
   const today = new Date();
-  const daysLeft = differenceInDays(new Date(trialEndDate), today);
+  // Normalize time to avoid timezone issues
+  today.setHours(0, 0, 0, 0);
+  
+  const trialEnd = new Date(trialEndDate);
+  trialEnd.setHours(0, 0, 0, 0);
+  
+  const daysLeft = differenceInDays(trialEnd, today);
   
   console.log('📅 Trial Date Info:', { 
     name, 
     daysLeft, 
     trialEndDate,
     today: today.toISOString(),
-    parsedTrialDate: new Date(trialEndDate).toISOString()
+    parsedTrialDate: trialEnd.toISOString()
   });
   
   // Skip if trial has ended
   if (daysLeft < 0) return null;
   
-  // Determine urgency styling - enhanced for mobile visibility
+  // Determine urgency styling - trials with 3 or fewer days left
   const isUrgent = daysLeft <= 3;
   console.log('🚨 Styling Decision:', { 
     name, 
