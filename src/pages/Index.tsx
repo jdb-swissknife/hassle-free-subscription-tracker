@@ -10,7 +10,7 @@ import { useSignupCounter } from '@/hooks/useSignupCounter';
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { count, remaining, isAlmostFull, percentageFilled } = useSignupCounter();
+  const { count, remaining, isAlmostFull, percentageFilled, loading: counterLoading } = useSignupCounter();
   
   const handleGetStarted = () => {
     if (user) {

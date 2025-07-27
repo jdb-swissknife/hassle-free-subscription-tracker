@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      early_adopter_signups: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          signup_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          signup_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          signup_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       email_templates: {
         Row: {
           created_at: string
@@ -246,7 +273,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_early_adopter_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

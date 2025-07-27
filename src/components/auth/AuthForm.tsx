@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Mail } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
+import { trackEarlyAdopterSignup } from '@/utils/signupTracker'
 
 export default function AuthForm() {
   const [email, setEmail] = useState('')
@@ -69,6 +70,9 @@ export default function AuthForm() {
           toast.error(error.message)
         }
       } else {
+        // Track the signup for FOMO counter
+        await trackEarlyAdopterSignup(email, undefined, 'full_registration')
+        
         toast.success('Welcome to SubscriptionSniper! Please check your email for verification.')
         navigate('/dashboard')
       }
