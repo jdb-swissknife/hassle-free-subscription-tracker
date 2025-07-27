@@ -10,8 +10,6 @@ interface DatabaseUserSettings {
   email_notifications: boolean
   push_notifications: boolean
   in_app_notifications: boolean
-  sms_notifications: boolean
-  phone_number: string | null
   currency: string
   theme: 'light' | 'dark' | 'system'
   timezone: string
@@ -90,14 +88,13 @@ export function useUserSettings() {
             email: data.email_notifications,
             push: data.push_notifications,
             inApp: data.in_app_notifications,
-            sms: data.sms_notifications,
+            sms: false, // SMS removed
           },
           defaultNotifications: Array.isArray(data.default_notifications) 
             ? (data.default_notifications as NotificationSetting[])
             : defaultNotifications,
           currency: data.currency,
           theme: data.theme as 'light' | 'dark' | 'system',
-          phoneNumber: data.phone_number || undefined,
           timezone: data.timezone,
         }
         setSettings(userSettings)
@@ -126,8 +123,6 @@ export function useUserSettings() {
         email_notifications: newSettings.notificationPreference.email,
         push_notifications: newSettings.notificationPreference.push,
         in_app_notifications: newSettings.notificationPreference.inApp,
-        sms_notifications: newSettings.notificationPreference.sms,
-        phone_number: newSettings.phoneNumber || null,
         currency: newSettings.currency,
         theme: newSettings.theme,
         timezone: newSettings.timezone || 'America/New_York',

@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_templates: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          is_default: boolean
+          notification_type: string
+          subject: string
+          text_content: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          is_default?: boolean
+          notification_type: string
+          subject: string
+          text_content?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_default?: boolean
+          notification_type?: string
+          subject?: string
+          text_content?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_queue: {
+        Row: {
+          attempts: number
+          channel: string
+          created_at: string
+          email_data: Json | null
+          error_message: string | null
+          id: string
+          max_attempts: number
+          notification_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          subscription_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          channel?: string
+          created_at?: string
+          email_data?: Json | null
+          error_message?: string | null
+          id?: string
+          max_attempts?: number
+          notification_type: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          subscription_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          channel?: string
+          created_at?: string
+          email_data?: Json | null
+          error_message?: string | null
+          id?: string
+          max_attempts?: number
+          notification_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          subscription_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -115,9 +207,7 @@ export type Database = {
           email_notifications: boolean
           id: string
           in_app_notifications: boolean
-          phone_number: string | null
           push_notifications: boolean
-          sms_notifications: boolean
           theme: string
           timezone: string
           updated_at: string
@@ -130,9 +220,7 @@ export type Database = {
           email_notifications?: boolean
           id?: string
           in_app_notifications?: boolean
-          phone_number?: string | null
           push_notifications?: boolean
-          sms_notifications?: boolean
           theme?: string
           timezone?: string
           updated_at?: string
@@ -145,9 +233,7 @@ export type Database = {
           email_notifications?: boolean
           id?: string
           in_app_notifications?: boolean
-          phone_number?: string | null
           push_notifications?: boolean
-          sms_notifications?: boolean
           theme?: string
           timezone?: string
           updated_at?: string

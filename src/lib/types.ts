@@ -46,7 +46,7 @@ export type NotificationSetting = {
   message?: string;
 };
 
-export type NotificationChannel = 'email' | 'sms' | 'inApp';
+export type NotificationChannel = 'email' | 'inApp';
 
 export type NotificationPreference = {
   email: boolean;
