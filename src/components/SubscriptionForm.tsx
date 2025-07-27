@@ -51,6 +51,19 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
             value={subscription.name || ''}
             onChange={onInputChange}
             className="mt-1"
+            placeholder="e.g., Netflix, Spotify, Office 365"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="provider">Provider/Company</Label>
+          <Input
+            id="provider"
+            name="provider"
+            value={subscription.provider || ''}
+            onChange={onInputChange}
+            className="mt-1"
+            placeholder="e.g., Netflix, Spotify, Microsoft"
           />
         </div>
         

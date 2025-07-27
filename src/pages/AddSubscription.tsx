@@ -92,14 +92,14 @@ const AddSubscription: React.FC = () => {
         <div className="glass-card overflow-hidden mb-6">
           <div className="flex items-center border-b border-border">
             <div 
-              className={`flex-1 text-center py-3 cursor-pointer ${step === 1 ? 'bg-primary/10 border-b-2 border-primary' : ''}`}
-              onClick={() => step > 1 && setStep(1)}
+              className={`flex-1 text-center py-3 cursor-pointer transition-colors ${step === 1 ? 'bg-primary/10 border-b-2 border-primary text-primary' : 'hover:bg-muted/50'}`}
+              onClick={() => setStep(1)}
             >
               Details
             </div>
             <div 
-              className={`flex-1 text-center py-3 cursor-pointer ${step === 2 ? 'bg-primary/10 border-b-2 border-primary' : ''}`}
-              onClick={() => step < 2 && isStepValid() && setStep(2)}
+              className={`flex-1 text-center py-3 cursor-pointer transition-colors ${step === 2 ? 'bg-primary/10 border-b-2 border-primary text-primary' : 'hover:bg-muted/50'}`}
+              onClick={() => setStep(2)}
             >
               Settings
             </div>
