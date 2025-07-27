@@ -140,6 +140,10 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          subscription_status: string | null
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          trial_used: boolean | null
           updated_at: string
           user_id: string
         }
@@ -149,6 +153,10 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          trial_used?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -158,6 +166,10 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          trial_used?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -276,6 +288,23 @@ export type Database = {
       get_early_adopter_count: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_trial_info: {
+        Args: { user_id: string }
+        Returns: {
+          trial_active: boolean
+          trial_days_remaining: number
+          trial_started_at: string
+          trial_ends_at: string
+        }[]
+      }
+      is_trial_active: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      start_user_trial: {
+        Args: { user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

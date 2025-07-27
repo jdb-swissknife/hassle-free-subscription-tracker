@@ -434,7 +434,7 @@ const Index: React.FC = () => {
                 
                 <div className="text-center mt-8 space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    🔒 Secure payment • 💝 30-day money-back guarantee • 🚀 Instant access
+                    🔒 Secure payment • 🚀 Instant access
                   </p>
                   <p className="text-xs text-muted-foreground">
                     After 2,500 early adopters, price increases to $149.99
@@ -460,7 +460,7 @@ const Index: React.FC = () => {
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                No credit card required • Free forever • Setup in under 2 minutes
+                3-day free trial • No credit card required • Setup in under 2 minutes
               </p>
             </div>
           </section>
