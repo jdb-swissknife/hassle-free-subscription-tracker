@@ -69,7 +69,7 @@ export default function AuthForm() {
           toast.error(error.message)
         }
       } else {
-        toast.success('Account created successfully! Please check your email for verification.')
+        toast.success('Welcome to SubscriptionSniper! Please check your email for verification.')
         navigate('/dashboard')
       }
     } catch (error: any) {
