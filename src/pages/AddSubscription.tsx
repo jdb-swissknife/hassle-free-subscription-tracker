@@ -123,6 +123,8 @@ const AddSubscription: React.FC = () => {
               setHasTrial={setHasTrial}
               trialEndDate={trialEndDate}
               setTrialEndDate={setTrialEndDate}
+              subscription={subscription}
+              onSubscriptionChange={(updates) => setSubscription(prev => ({ ...prev, ...updates }))}
             />
           )}
         </div>

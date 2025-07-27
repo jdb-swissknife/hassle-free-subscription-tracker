@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { Calendar, AlertCircle } from 'lucide-react';
+import { Calendar, AlertCircle, Palette, FileText, Bell } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Popover,
   PopoverContent,
@@ -20,7 +22,20 @@ interface SubscriptionSettingsProps {
   setHasTrial: (hasTrial: boolean) => void;
   trialEndDate: Date | undefined;
   setTrialEndDate: (date: Date | undefined) => void;
+  subscription: any;
+  onSubscriptionChange: (updates: any) => void;
 }
+
+const colorOptions = [
+  { name: 'Blue', value: '#3b82f6' },
+  { name: 'Purple', value: '#8b5cf6' },
+  { name: 'Pink', value: '#ec4899' },
+  { name: 'Green', value: '#10b981' },
+  { name: 'Orange', value: '#f59e0b' },
+  { name: 'Red', value: '#ef4444' },
+  { name: 'Indigo', value: '#6366f1' },
+  { name: 'Teal', value: '#14b8a6' },
+];
 
 const SubscriptionSettings: React.FC<SubscriptionSettingsProps> = ({
   startDate,
@@ -28,53 +43,61 @@ const SubscriptionSettings: React.FC<SubscriptionSettingsProps> = ({
   hasTrial,
   setHasTrial,
   trialEndDate,
-  setTrialEndDate
+  setTrialEndDate,
+  subscription,
+  onSubscriptionChange
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Start Date */}
       <div>
-        <Label>Start Date</Label>
-        <div className="mt-1">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !startDate && "text-muted-foreground"
-                )}
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 pointer-events-auto">
-              <CalendarComponent
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          Start Date
+        </Label>
+        <p className="text-sm text-muted-foreground mb-3">When did you start this subscription?</p>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !startDate && "text-muted-foreground"
+              )}
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+            <CalendarComponent
+              mode="single"
+              selected={startDate}
+              onSelect={setStartDate}
+              initialFocus
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      
+      {/* Free Trial */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="hasTrial"
+            checked={hasTrial}
+            onCheckedChange={(checked) => setHasTrial(checked === true)}
+            className="rounded"
+          />
+          <Label htmlFor="hasTrial" className="cursor-pointer font-medium">
+            This subscription has a free trial
+          </Label>
         </div>
-      </div>
-      
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="hasTrial"
-          checked={hasTrial}
-          onCheckedChange={(checked) => setHasTrial(checked === true)}
-          className="rounded text-primary focus:ring-primary"
-        />
-        <Label htmlFor="hasTrial" className="cursor-pointer">This subscription has a free trial</Label>
-      </div>
-      
-      {hasTrial && (
-        <div>
-          <Label>Trial End Date</Label>
-          <div className="mt-1">
+        
+        {hasTrial && (
+          <div className="ml-6 space-y-3">
+            <Label className="text-sm font-medium">Trial End Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -88,7 +111,7 @@ const SubscriptionSettings: React.FC<SubscriptionSettingsProps> = ({
                   {trialEndDate ? format(trialEndDate, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 pointer-events-auto">
+              <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                 <CalendarComponent
                   mode="single"
                   selected={trialEndDate}
@@ -99,24 +122,143 @@ const SubscriptionSettings: React.FC<SubscriptionSettingsProps> = ({
               </PopoverContent>
             </Popover>
           </div>
+        )}
+      </div>
+
+      {/* Color Selection */}
+      <div>
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Palette className="h-4 w-4" />
+          Color Theme
+        </Label>
+        <p className="text-sm text-muted-foreground mb-3">Choose a color to identify this subscription</p>
+        <div className="grid grid-cols-4 gap-3">
+          {colorOptions.map((color) => (
+            <button
+              key={color.value}
+              type="button"
+              className={cn(
+                "relative h-12 w-full rounded-lg border-2 transition-all hover:scale-105",
+                subscription.color === color.value
+                  ? "border-primary ring-2 ring-primary/20"
+                  : "border-border hover:border-primary/50"
+              )}
+              style={{ backgroundColor: color.value }}
+              onClick={() => onSubscriptionChange({ color: color.value })}
+            >
+              {subscription.color === color.value && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-3 w-3 rounded-full bg-white shadow-sm" />
+                </div>
+              )}
+              <span className="sr-only">{color.name}</span>
+            </button>
+          ))}
         </div>
-      )}
-      
-      <div className="rounded-md bg-blue-50 dark:bg-blue-900/20 p-4">
-        <div className="flex items-start">
-          <div className="flex-shrink-0">
-            <AlertCircle className="h-5 w-5 text-blue-400 dark:text-blue-300" aria-hidden="true" />
+      </div>
+
+      {/* Description */}
+      <div>
+        <Label htmlFor="description" className="text-sm font-medium flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          Description (Optional)
+        </Label>
+        <p className="text-sm text-muted-foreground mb-3">Add notes about this subscription</p>
+        <Textarea
+          id="description"
+          placeholder="e.g., Family plan, includes premium features..."
+          value={subscription.description || ''}
+          onChange={(e) => onSubscriptionChange({ description: e.target.value })}
+          className="min-h-[80px]"
+        />
+      </div>
+
+      {/* Notifications */}
+      <div>
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Bell className="h-4 w-4" />
+          Notification Settings
+        </Label>
+        <p className="text-sm text-muted-foreground mb-4">Choose when to receive reminders</p>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div>
+              <p className="font-medium">Payment Reminders</p>
+              <p className="text-sm text-muted-foreground">Get notified 3 days before payment is due</p>
+            </div>
+            <Switch
+              checked={subscription.notifications?.payment?.enabled !== false}
+              onCheckedChange={(enabled) => 
+                onSubscriptionChange({
+                  notifications: {
+                    ...subscription.notifications,
+                    payment: { ...subscription.notifications?.payment, enabled }
+                  }
+                })
+              }
+            />
           </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">Notifications</h3>
-            <div className="mt-2 text-sm text-blue-700 dark:text-blue-400">
-              <p>Default notifications will be set up for this subscription, including:</p>
-              <ul className="list-disc pl-5 mt-1 space-y-1">
-                <li>Payment reminders 3 days before due date</li>
-                {hasTrial && <li>Trial end reminders 3 days before expiration</li>}
-                <li>Annual renewal reminders (if applicable)</li>
-              </ul>
-              <p className="mt-2">You can customize these in Settings later.</p>
+
+          {hasTrial && (
+            <div className="flex items-center justify-between p-3 rounded-lg border">
+              <div>
+                <p className="font-medium">Trial End Reminders</p>
+                <p className="text-sm text-muted-foreground">Get notified 3 days before trial expires</p>
+              </div>
+              <Switch
+                checked={subscription.notifications?.trial?.enabled !== false}
+                onCheckedChange={(enabled) => 
+                  onSubscriptionChange({
+                    notifications: {
+                      ...subscription.notifications,
+                      trial: { ...subscription.notifications?.trial, enabled }
+                    }
+                  })
+                }
+              />
+            </div>
+          )}
+
+          <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div>
+              <p className="font-medium">Renewal Reminders</p>
+              <p className="text-sm text-muted-foreground">Get notified before annual renewals</p>
+            </div>
+            <Switch
+              checked={subscription.notifications?.renewal?.enabled !== false}
+              onCheckedChange={(enabled) => 
+                onSubscriptionChange({
+                  notifications: {
+                    ...subscription.notifications,
+                    renewal: { ...subscription.notifications?.renewal, enabled }
+                  }
+                })
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div className="rounded-lg bg-muted/50 p-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
+          <div>
+            <h3 className="font-medium">Settings Summary</h3>
+            <div className="mt-2 text-sm text-muted-foreground space-y-1">
+              <p>• Start Date: {startDate ? format(startDate, "PPP") : "Not set"}</p>
+              {hasTrial && trialEndDate && (
+                <p>• Trial ends: {format(trialEndDate, "PPP")}</p>
+              )}
+              <p>• Color: {colorOptions.find(c => c.value === subscription.color)?.name || "Default"}</p>
+              <p>• Notifications: {
+                [
+                  subscription.notifications?.payment?.enabled !== false && "Payment",
+                  subscription.notifications?.trial?.enabled !== false && hasTrial && "Trial",
+                  subscription.notifications?.renewal?.enabled !== false && "Renewal"
+                ].filter(Boolean).join(", ") || "None"
+              }</p>
             </div>
           </div>
         </div>
