@@ -64,10 +64,12 @@ const Index: React.FC = () => {
                     </span>
                   </div>
                   <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight">
-                    Never Miss a Payment or Free Trial Again
+                    Your Subscriptions Are Out of Control
+                    <br />
+                    And It's Costing You Thousands
                   </h1>
                   <p className="text-xl text-muted-foreground leading-relaxed">
-                    Your smart AI subscription manager that saves money and eliminates subscription surprises. Take control with SubLedger & SubSnipe—your AI dream team.
+                    Right now, forgotten free trials are converting to paid plans. Unused apps are auto-renewing. Dead subscriptions are bleeding you dry. SubscriptionSniper stops the madness before your next billing cycle.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <Button size="lg" className="px-8 py-3 text-lg" onClick={handleGetStarted}>
