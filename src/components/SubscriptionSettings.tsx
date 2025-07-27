@@ -148,9 +148,9 @@ const SubscriptionSettings: React.FC<SubscriptionSettingsProps> = ({
       <div>
         <Label className="text-sm font-medium flex items-center gap-2">
           <Palette className="h-4 w-4" />
-          Color Theme
+          Color Theme (Optional)
         </Label>
-        <p className="text-sm text-muted-foreground mb-3">Choose a color to identify this subscription</p>
+        <p className="text-sm text-muted-foreground mb-3">Choose a color to identify this subscription, or we'll pick one randomly</p>
         <div className="grid grid-cols-4 gap-3">
           {colorOptions.map((color) => (
             <button
