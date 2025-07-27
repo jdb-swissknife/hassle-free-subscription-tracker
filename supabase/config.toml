@@ -10,10 +10,10 @@ max_rows = 1000
 [auth]
 enabled = true
 port = 54322
-site_url = "http://localhost:3000"
+site_url = "http://localhost:8080"
 additional_redirect_urls = [
   "https://zujkxmcxnkpnktwcnkkk.supabase.co",
-  "http://localhost:3000",
+  "http://localhost:8080",
   "https://*.vercel.app",
   "https://*.netlify.app"
 ]
