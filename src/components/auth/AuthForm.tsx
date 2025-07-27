@@ -171,7 +171,7 @@ export default function AuthForm() {
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Welcome to SubTracker
+              Welcome to SubscriptionSniper
             </CardTitle>
             <CardDescription>
               Manage your subscriptions with ease
