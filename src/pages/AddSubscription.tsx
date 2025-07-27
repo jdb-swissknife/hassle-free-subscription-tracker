@@ -1,25 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Subscription, SubscriptionCategory } from '@/lib/types';
-import VoiceInput from '@/components/VoiceInput';
 import SubscriptionForm from '@/components/SubscriptionForm';
 import SubscriptionSettings from '@/components/SubscriptionSettings';
-import VoiceProcessingIndicator from '@/components/VoiceProcessingIndicator';
-import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { useSupabaseSubscriptions } from '@/hooks/useSupabaseSubscriptions';
-import { saveNewSubscriptionToDatabase, SubscriptionData } from '@/lib/subscriptionDatabase';
-import { processVoiceInput } from '@/lib/voiceProcessor';
 import { getRandomColor, createDefaultNotifications } from '@/utils/subscriptionUtils';
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
   const { addSubscription } = useSupabaseSubscriptions();
-  const [listening, setListening] = useState(false);
-  const [processingVoice, setProcessingVoice] = useState(false);
   const [subscription, setSubscription] = useState<Partial<Subscription>>({
     name: '',
     provider: '',
@@ -33,41 +26,6 @@ const AddSubscription: React.FC = () => {
   const [hasTrial, setHasTrial] = useState(false);
   const [trialEndDate, setTrialEndDate] = useState<Date | undefined>(undefined);
   const [step, setStep] = useState(1);
-  const [isNewSubscription, setIsNewSubscription] = useState(false);
-  
-  const handleVoiceInput = (transcript: string) => {
-    setProcessingVoice(true);
-    
-    const { subscription: extractedSubscription, isNewSubscription: isNew, extractedData } = processVoiceInput(transcript);
-    
-    setSubscription(prev => ({
-      ...prev,
-      ...extractedSubscription
-    }));
-    
-    setIsNewSubscription(isNew);
-    
-    if (isNew) {
-      console.log("No database match found, using AI extraction");
-    } else {
-      console.log("Found database match:", extractedSubscription);
-      toast.success(`Found ${extractedSubscription.name} in database!`);
-    }
-    
-    // Handle dates
-    if (extractedData.startDate) {
-      setStartDate(extractedData.startDate);
-    }
-    
-    if (extractedData.trialEndDate) {
-      setHasTrial(true);
-      setTrialEndDate(extractedData.trialEndDate);
-    }
-    
-    setTimeout(() => {
-      setProcessingVoice(false);
-    }, 1500);
-  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -93,20 +51,6 @@ const AddSubscription: React.FC = () => {
   };
   
   const handleSubmit = async () => {
-    // If this is a new subscription not in our database, save it
-    if (isNewSubscription && subscription.name && subscription.provider && subscription.category) {
-      const newSubscriptionData: SubscriptionData = {
-        name: subscription.name,
-        provider: subscription.provider,
-        category: subscription.category,
-        commonPrices: subscription.price ? [subscription.price] : [],
-        alternativeNames: [subscription.name.toLowerCase()]
-      };
-      
-      saveNewSubscriptionToDatabase(newSubscriptionData);
-      toast.success('New subscription saved to database for future users!');
-    }
-    
     // Add subscription to user's list
     const newSubscription: Omit<Subscription, 'id'> = {
       name: subscription.name || '',
@@ -129,14 +73,6 @@ const AddSubscription: React.FC = () => {
     }
   };
   
-  // For debugging purposes
-  useEffect(() => {
-    console.log("Current subscription state:", subscription);
-    console.log("Current start date:", startDate);
-    console.log("Has trial:", hasTrial);
-    console.log("Trial end date:", trialEndDate);
-    console.log("Is new subscription:", isNewSubscription);
-  }, [subscription, startDate, hasTrial, trialEndDate, isNewSubscription]);
   
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8 min-h-screen">
@@ -173,20 +109,6 @@ const AddSubscription: React.FC = () => {
       
       <main>
         <div className="glass-card p-6 mb-6">
-          <VoiceInput
-            onResult={handleVoiceInput}
-            listening={listening}
-            onListeningChange={setListening}
-            placeholder="Describe your subscription with voice... (e.g., 'Netflix for $15.99 monthly starting January 15th with a 30-day trial')"
-            className="mb-6"
-          />
-          
-          <VoiceProcessingIndicator
-            processingVoice={processingVoice}
-            isNewSubscription={isNewSubscription}
-            subscriptionName={subscription.name}
-          />
-          
           {step === 1 ? (
             <SubscriptionForm
               subscription={subscription}
