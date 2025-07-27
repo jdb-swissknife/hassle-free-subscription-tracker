@@ -81,48 +81,67 @@ const SubscriptionSettings: React.FC<SubscriptionSettingsProps> = ({
         </Popover>
       </div>
       
-      {/* Free Trial */}
-      <div className="space-y-4">
-        <div className="flex items-center space-x-3">
-          <Checkbox
-            id="hasTrial"
-            checked={hasTrial}
-            onCheckedChange={(checked) => setHasTrial(checked === true)}
-            className="rounded"
-          />
-          <Label htmlFor="hasTrial" className="cursor-pointer font-medium">
-            This subscription has a free trial
-          </Label>
-        </div>
-        
-        {hasTrial && (
-          <div className="ml-6 space-y-3">
-            <Label className="text-sm font-medium">Trial End Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !trialEndDate && "text-muted-foreground"
-                  )}
-                >
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {trialEndDate ? format(trialEndDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                <CalendarComponent
-                  mode="single"
-                  selected={trialEndDate}
-                  onSelect={setTrialEndDate}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
+      {/* Free Trial - Featured Section */}
+      <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0">
+            <div className="rounded-full bg-primary/10 p-3">
+              <AlertCircle className="h-6 w-6 text-primary" />
+            </div>
           </div>
-        )}
+          <div className="flex-1 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Free Trial Information</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Does this subscription include a free trial period? This helps track when you'll be charged.
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="hasTrial"
+                checked={hasTrial}
+                onCheckedChange={(checked) => setHasTrial(checked === true)}
+                className="rounded h-5 w-5"
+              />
+              <Label htmlFor="hasTrial" className="cursor-pointer font-medium text-base">
+                Yes, this subscription has a free trial
+              </Label>
+            </div>
+            
+            {hasTrial && (
+              <div className="mt-4 p-4 bg-background rounded-lg border">
+                <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                  <Calendar className="h-4 w-4" />
+                  When does your free trial end?
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !trialEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {trialEndDate ? format(trialEndDate, "PPP") : <span>Select trial end date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={trialEndDate}
+                      onSelect={setTrialEndDate}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Color Selection */}
