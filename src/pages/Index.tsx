@@ -1,14 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Users, Shield, Clock, Sparkles, Bell, CalendarClock, Mic, Brain, Target, DollarSign } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users, Shield, Clock, Sparkles, Bell, CalendarClock, Mic, Brain, Target, DollarSign, Timer, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import FloatingText from '@/components/FloatingText';
+import { useSignupCounter } from '@/hooks/useSignupCounter';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { count, remaining, isAlmostFull, percentageFilled } = useSignupCounter();
   
   const handleGetStarted = () => {
     if (user) {
@@ -303,6 +305,138 @@ const Index: React.FC = () => {
                     <p className="font-semibold">Emily Watson</p>
                     <p className="text-sm text-muted-foreground">Small Business Owner</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          {/* Pricing Section */}
+          <section className="py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+            <div className="container max-w-5xl mx-auto px-4">
+              <div className="text-center mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                  <Timer className="h-4 w-4" />
+                  Limited Time Offer
+                </div>
+                <h2 className="text-4xl font-bold mb-6">Simple Pricing, Lifetime Value</h2>
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                  Start free, then secure your lifetime access with our early adopter special
+                </p>
+              </div>
+              
+              <div className="relative max-w-2xl mx-auto">
+                {/* FOMO Counter Bar */}
+                <div className="mb-8 p-6 glass-card rounded-2xl border border-primary/20">
+                  <div className="text-center mb-4">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Zap className={`h-5 w-5 ${isAlmostFull ? 'text-orange-500' : 'text-primary'}`} />
+                      <span className="text-lg font-semibold">
+                        {remaining.toLocaleString()} spots remaining for early adopters
+                      </span>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {count.toLocaleString()} out of 2,500 lifetime deals claimed
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="relative w-full bg-muted rounded-full h-3 overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${
+                        isAlmostFull 
+                          ? 'bg-gradient-to-r from-orange-400 to-red-500' 
+                          : 'bg-gradient-to-r from-primary to-primary/70'
+                      }`}
+                      style={{ width: `${percentageFilled}%` }}
+                    ></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50"></div>
+                  </div>
+                  
+                  {isAlmostFull && (
+                    <div className="mt-3 text-center">
+                      <span className="text-sm font-medium text-orange-600 bg-orange-100 px-3 py-1 rounded-full">
+                        🔥 Almost sold out!
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Pricing Card */}
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary to-primary/60 rounded-3xl blur-lg opacity-30"></div>
+                  <div className="glass-card p-8 rounded-3xl border border-primary/30 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-2 rounded-bl-2xl font-medium text-sm">
+                      Early Adopter Special
+                    </div>
+                    
+                    <div className="text-center space-y-6 pt-4">
+                      <div>
+                        <h3 className="text-2xl font-bold mb-2">SubscriptionSniper Lifetime</h3>
+                        <p className="text-muted-foreground">Everything you need to master your subscriptions</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                          <span className="line-through">Regular: $149.99</span>
+                        </div>
+                        <div className="text-5xl font-bold text-primary">$49.99</div>
+                        <div className="text-lg font-medium text-muted-foreground">One-time payment • Lifetime access</div>
+                      </div>
+                      
+                      <div className="space-y-3 text-left">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>3-day free trial (no credit card required)</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>Unlimited subscription tracking</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>AI-powered voice input & processing</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>Smart notifications & alerts</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>Advanced analytics & insights</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>Priority customer support</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <span>All future updates included</span>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button 
+                          size="lg" 
+                          className="w-full px-8 py-4 text-lg font-semibold" 
+                          onClick={handleGetStarted}
+                        >
+                          {user ? 'Go to Dashboard' : 'Start Free Trial'} <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-3 text-center">
+                          Try free for 3 days, then secure your lifetime deal
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-8 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    🔒 Secure payment • 💝 30-day money-back guarantee • 🚀 Instant access
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    After 2,500 early adopters, price increases to $149.99
+                  </p>
                 </div>
               </div>
             </div>
