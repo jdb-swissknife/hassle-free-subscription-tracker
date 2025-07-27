@@ -33,7 +33,7 @@ const Index: React.FC = () => {
       <div className="flex flex-col min-h-screen">
         <header className="container max-w-7xl mx-auto px-4 py-6">
           <nav className="flex justify-between items-center">
-            <div className="text-xl font-medium text-gradient">SubscribeAI</div>
+            <div className="text-xl font-medium text-gradient">SubSniper</div>
             <div>
               <Button variant="ghost" className="mr-2" onClick={() => navigate('/settings')}>
                 Settings
@@ -140,7 +140,7 @@ const Index: React.FC = () => {
           <section className="py-20">
             <div className="container max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold mb-6">How SubscribeAI Works</h2>
+                <h2 className="text-4xl font-bold mb-6">How SubSniper Works</h2>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   Three simple steps to take complete control of your subscriptions
                 </p>
@@ -193,7 +193,7 @@ const Index: React.FC = () => {
           <section className="py-20 bg-muted/30">
             <div className="container max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold mb-6">Why Choose SubscribeAI?</h2>
+                <h2 className="text-4xl font-bold mb-6">Why Choose SubSniper?</h2>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   Advanced AI technology meets user-friendly design for the ultimate subscription management experience
                 </p>
@@ -256,7 +256,7 @@ const Index: React.FC = () => {
             <div className="container max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold mb-6">Loved by Thousands</h2>
-                <p className="text-xl text-muted-foreground">See what our users are saying about SubscribeAI</p>
+                <p className="text-xl text-muted-foreground">See what our users are saying about SubSniper</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -267,7 +267,7 @@ const Index: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic">
-                    "SubscribeAI saved me over $300 this year by catching subscriptions I forgot about. The voice input is incredibly convenient!"
+                    "SubSniper saved me over $300 this year by catching subscriptions I forgot about. The voice input is incredibly convenient!"
                   </p>
                   <div className="pt-4 border-t">
                     <p className="font-semibold">Sarah Chen</p>
@@ -334,7 +334,7 @@ const Index: React.FC = () => {
           <div className="container max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
               <div>
-                <div className="text-xl font-medium text-gradient mb-3">SubscribeAI</div>
+                <div className="text-xl font-medium text-gradient mb-3">SubSniper</div>
                 <p className="text-muted-foreground">
                   The smart way to manage subscriptions
                 </p>
@@ -346,7 +346,7 @@ const Index: React.FC = () => {
                 </div>
               </div>
               <div className="text-right text-muted-foreground text-sm">
-                &copy; {new Date().getFullYear()} SubscribeAI. All rights reserved.
+                &copy; {new Date().getFullYear()} SubSniper. All rights reserved.
               </div>
             </div>
           </div>
