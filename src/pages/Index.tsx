@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Users, Shield, Clock, Sparkles, Bell, CalendarClock, Mic, Brain, Target, DollarSign, Timer, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users, Shield, Clock, Sparkles, Bell, CalendarClock, Brain, Target, DollarSign, Timer, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import FloatingText from '@/components/FloatingText';
@@ -153,13 +153,13 @@ const Index: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div className="text-center space-y-6">
                   <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/40 rounded-2xl flex items-center justify-center">
-                    <Mic className="h-10 w-10 text-primary" />
+                    <Target className="h-10 w-10 text-primary" />
                   </div>
                   <div className="space-y-3">
                     <div className="text-sm font-medium text-primary">Step 1</div>
-                    <h3 className="text-2xl font-bold">Effortless Setup</h3>
+                    <h3 className="text-2xl font-bold">Quick Setup</h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      Simply speak or type your subscription details—our AI handles the rest. No tedious forms or manual data entry required.
+                      Add your subscription details with our intuitive interface. No tedious forms or manual data entry required.
                     </p>
                   </div>
                 </div>
@@ -205,9 +205,9 @@ const Index: React.FC = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="glass-card-hover p-6 space-y-4">
-                  <Mic className="h-8 w-8 text-primary" />
-                  <h3 className="text-lg font-semibold">Voice Commands</h3>
-                  <p className="text-muted-foreground">Add subscriptions in seconds with natural voice commands—no typing required.</p>
+                  <Sparkles className="h-8 w-8 text-primary" />
+                  <h3 className="text-lg font-semibold">Smart Input</h3>
+                  <p className="text-muted-foreground">Add subscriptions quickly with our intelligent input system—streamlined and efficient.</p>
                 </div>
                 
                 <div className="glass-card-hover p-6 space-y-4">
@@ -271,7 +271,7 @@ const Index: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic">
-                    "SubscriptionSniper saved me over $300 this year by catching subscriptions I forgot about. The voice input is incredibly convenient!"
+                    "SubscriptionSniper saved me over $300 this year by catching subscriptions I forgot about. The smart tracking is incredibly convenient!"
                   </p>
                   <div className="pt-4 border-t">
                     <p className="font-semibold">Sarah Chen</p>
@@ -396,7 +396,7 @@ const Index: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                          <span>AI-powered voice input & processing</span>
+                          <span>AI-powered smart tracking & processing</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
