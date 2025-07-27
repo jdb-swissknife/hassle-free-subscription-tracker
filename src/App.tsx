@@ -22,19 +22,37 @@ const AppRoutes = () => {
   const location = useLocation();
   
   return (
-    <ProtectedRoute>
-      <AnimatedTransition location={location.pathname} className="min-h-screen">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/add" element={<AddSubscription />} />
-          <Route path="/subscription/:id" element={<SubscriptionDetail />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AnimatedTransition>
-    </ProtectedRoute>
+    <AnimatedTransition location={location.pathname} className="min-h-screen">
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/add" element={
+          <ProtectedRoute>
+            <AddSubscription />
+          </ProtectedRoute>
+        } />
+        <Route path="/subscription/:id" element={
+          <ProtectedRoute>
+            <SubscriptionDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        } />
+        <Route path="/account" element={
+          <ProtectedRoute>
+            <Account />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatedTransition>
   );
 };
 
