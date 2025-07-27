@@ -8,12 +8,12 @@ import {
   Moon, 
   SunMedium, 
   Laptop,
-  Phone,
   Calendar,
   Download,
   Globe,
   LogOut,
-  User
+  User,
+  TestTube
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -164,32 +164,37 @@ const Settings: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between">
-              <Label htmlFor="sms-notifications" className="flex-grow">SMS Notifications</Label>
-              <Switch
-                id="sms-notifications"
-                checked={settings.notificationPreference.sms}
-                onCheckedChange={(checked) => handlePreferenceToggle('sms', checked)}
-              />
-            </div>
-
-            {settings.notificationPreference.sms && (
-              <div className="ml-4 space-y-2">
-                <Label htmlFor="phone-number" className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  Phone Number
-                </Label>
-                <Input
-                  id="phone-number"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
-                  value={settings.phoneNumber || ''}
-                  onChange={(e) => handlePhoneNumberChange(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  SMS notifications require explicit consent and will only be used for critical alerts.
-                </p>
+              <div className="flex items-center gap-2">
+                <TestTube className="h-4 w-4" />
+                <span>Test Email Notifications</span>
               </div>
-            )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  if (!user?.email) {
+                    toast.error('No email address found');
+                    return;
+                  }
+                  
+                  try {
+                    const { EmailNotificationService } = await import('@/services/emailNotificationService');
+                    const service = EmailNotificationService.getInstance();
+                    const success = await service.sendTestEmail(user.email);
+                    if (success) {
+                      toast.success('Test email sent successfully!');
+                    } else {
+                      toast.error('Failed to send test email');
+                    }
+                  } catch (error) {
+                    console.error('Error sending test email:', error);
+                    toast.error('Error sending test email');
+                  }
+                }}
+              >
+                Send Test Email
+              </Button>
+            </div>
           </div>
           
           <Separator className="my-6" />

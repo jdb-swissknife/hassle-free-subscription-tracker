@@ -14,6 +14,7 @@ import SubscriptionTabContent from '@/components/dashboard/SubscriptionTabConten
 import CancelledSubscriptionsList from '@/components/dashboard/CancelledSubscriptionsList';
 import SubscriptionStats from '@/components/SubscriptionStats';
 import QuickAdd from '@/components/dashboard/QuickAdd';
+import { useNotificationScheduler } from '@/hooks/useNotificationScheduler';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
@@ -29,6 +30,9 @@ const Dashboard: React.FC = () => {
     searchSubscriptions,
     deleteSubscription
   } = useSupabaseSubscriptions();
+  
+  // Initialize notification scheduler
+  useNotificationScheduler();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'date'>('date');
