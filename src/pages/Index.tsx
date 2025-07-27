@@ -368,21 +368,23 @@ const Index: React.FC = () => {
                   <div className="absolute -inset-1 bg-gradient-to-r from-primary to-primary/60 rounded-3xl blur-lg opacity-30"></div>
                   <div className="glass-card p-8 rounded-3xl border border-primary/30 relative overflow-hidden">
                     <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-2 rounded-bl-2xl font-medium text-sm">
-                      Early Adopter Special
+                      Beta Access
                     </div>
                     
                     <div className="text-center space-y-6 pt-4">
                       <div>
-                        <h3 className="text-2xl font-bold mb-2">SubscriptionSniper Lifetime</h3>
-                        <p className="text-muted-foreground">Everything you need to master your subscriptions</p>
+                        <h3 className="text-2xl font-bold mb-2">SubscriptionSniper Beta</h3>
+                        <p className="text-muted-foreground">Full access during beta testing period</p>
                       </div>
                       
                       <div className="space-y-2">
-                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                          <span className="line-through">Regular: $149.99</span>
+                        <div className="text-5xl font-bold text-primary">FREE</div>
+                        <div className="text-lg font-medium text-muted-foreground">Beta trial until launch</div>
+                        <div className="text-sm text-muted-foreground mt-2 p-3 bg-primary/10 rounded-lg">
+                          <div className="font-semibold text-primary mb-1">Early Adopter Pricing:</div>
+                          <div>First 2,500 users: <span className="font-semibold">$49.99 lifetime</span></div>
+                          <div className="text-xs mt-1">After 2,500 early adopters, price increases to $10 monthly, $100 annually</div>
                         </div>
-                        <div className="text-5xl font-bold text-primary">$49.99</div>
-                        <div className="text-lg font-medium text-muted-foreground">One-time payment • Lifetime access</div>
                       </div>
                       
                       <div className="space-y-3 text-left">
