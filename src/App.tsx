@@ -40,6 +40,11 @@ const AppRoutes = () => {
             <SubscriptionDetail />
           </ProtectedRoute>
         } />
+        <Route path="/edit/:id" element={
+          <ProtectedRoute>
+            <AddSubscription />
+          </ProtectedRoute>
+        } />
         <Route path="/settings" element={
           <ProtectedRoute>
             <Settings />

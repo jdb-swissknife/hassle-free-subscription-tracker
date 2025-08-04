@@ -34,11 +34,33 @@ const SubscriptionDetail: React.FC = () => {
   const {
     getSubscription,
     deleteSubscription,
-    cancelSubscription
+    cancelSubscription,
+    loading
   } = useSupabaseSubscriptions();
   
   const calendarService = CalendarService.getInstance();
   const subscription = getSubscription(id || '');
+  
+  // Show loading state while data is being fetched
+  if (loading) {
+    return (
+      <div className="container max-w-4xl mx-auto px-4 py-8 min-h-screen">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full mb-6"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        
+        <div className="glass-card p-10 text-center">
+          <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading subscription...</p>
+        </div>
+      </div>
+    );
+  }
   
   if (!subscription) {
     return (

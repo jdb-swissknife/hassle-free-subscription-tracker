@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Subscription, SubscriptionCategory } from '@/lib/types';
@@ -12,7 +12,11 @@ import { getRandomColor, createDefaultNotifications } from '@/utils/subscription
 
 const AddSubscription: React.FC = () => {
   const navigate = useNavigate();
-  const { addSubscription } = useSupabaseSubscriptions();
+  const { id } = useParams<{ id: string }>();
+  const { addSubscription, updateSubscription, getSubscription } = useSupabaseSubscriptions();
+  
+  const isEditing = !!id;
+  const existingSubscription = isEditing ? getSubscription(id!) : null;
   const [subscription, setSubscription] = useState<Partial<Subscription>>({
     name: '',
     provider: '',
@@ -25,6 +29,16 @@ const AddSubscription: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [hasTrial, setHasTrial] = useState(false);
   const [trialEndDate, setTrialEndDate] = useState<Date | undefined>(undefined);
+
+  // Load existing subscription data when editing
+  useEffect(() => {
+    if (isEditing && existingSubscription) {
+      setSubscription(existingSubscription);
+      setStartDate(existingSubscription.startDate);
+      setHasTrial(!!existingSubscription.trialEndDate);
+      setTrialEndDate(existingSubscription.trialEndDate);
+    }
+  }, [isEditing, existingSubscription]);
   const [step, setStep] = useState(1);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,25 +65,43 @@ const AddSubscription: React.FC = () => {
   };
   
   const handleSubmit = async () => {
-    // Add subscription to user's list
-    const newSubscription: Omit<Subscription, 'id'> = {
-      name: subscription.name || '',
-      provider: subscription.provider || '',
-      price: subscription.price || 0,
-      cycle: subscription.cycle as 'monthly' | 'yearly' | 'weekly' | 'custom',
-      startDate: startDate || new Date(),
-      trialEndDate: hasTrial ? trialEndDate : undefined,
-      category: subscription.category as SubscriptionCategory,
-      active: true,
-      status: 'active',
-      notifications: subscription.notifications || createDefaultNotifications(),
-      color: subscription.color || getRandomColor(),
-      description: subscription.description
-    };
-    
-    const result = await addSubscription(newSubscription);
-    if (result) {
-      navigate('/dashboard');
+    if (isEditing && id) {
+      // Update existing subscription
+      const updates = {
+        name: subscription.name || '',
+        provider: subscription.provider || '',
+        price: subscription.price || 0,
+        cycle: subscription.cycle as 'monthly' | 'yearly' | 'weekly' | 'custom',
+        startDate: startDate || new Date(),
+        trialEndDate: hasTrial ? trialEndDate : undefined,
+        category: subscription.category as SubscriptionCategory,
+        color: subscription.color || getRandomColor(),
+        description: subscription.description
+      };
+      
+      await updateSubscription(id, updates);
+      navigate(`/subscription/${id}`);
+    } else {
+      // Add new subscription
+      const newSubscription: Omit<Subscription, 'id'> = {
+        name: subscription.name || '',
+        provider: subscription.provider || '',
+        price: subscription.price || 0,
+        cycle: subscription.cycle as 'monthly' | 'yearly' | 'weekly' | 'custom',
+        startDate: startDate || new Date(),
+        trialEndDate: hasTrial ? trialEndDate : undefined,
+        category: subscription.category as SubscriptionCategory,
+        active: true,
+        status: 'active',
+        notifications: subscription.notifications || createDefaultNotifications(),
+        color: subscription.color || getRandomColor(),
+        description: subscription.description
+      };
+      
+      const result = await addSubscription(newSubscription);
+      if (result) {
+        navigate('/dashboard');
+      }
     }
   };
   
@@ -86,7 +118,7 @@ const AddSubscription: React.FC = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-3xl font-bold">Add Subscription</h1>
+          <h1 className="text-3xl font-bold">{isEditing ? 'Edit Subscription' : 'Add Subscription'}</h1>
         </div>
         
         <div className="glass-card overflow-hidden mb-6">
@@ -149,7 +181,7 @@ const AddSubscription: React.FC = () => {
             </Button>
           ) : (
             <Button onClick={handleSubmit}>
-              <Check className="mr-2 h-4 w-4" /> Save Subscription
+              <Check className="mr-2 h-4 w-4" /> {isEditing ? 'Update Subscription' : 'Save Subscription'}
             </Button>
           )}
         </div>
