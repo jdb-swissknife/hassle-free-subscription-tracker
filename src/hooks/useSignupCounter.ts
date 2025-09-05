@@ -7,12 +7,11 @@ export function useSignupCounter() {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Fetch initial count
+    // Fetch initial count using secure database function
     const fetchCount = async () => {
       try {
-        const { count: signupCount, error } = await supabase
-          .from('early_adopter_signups')
-          .select('*', { count: 'exact', head: true });
+        const { data, error } = await supabase
+          .rpc('get_early_adopter_count');
         
         if (error) {
           console.error('Error fetching signup count:', error);
@@ -20,7 +19,7 @@ export function useSignupCounter() {
           return;
         }
         
-        setCount(signupCount || 1247);
+        setCount(data || 1247);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching signup count:', error);

@@ -50,19 +50,18 @@ export const hasUserBeenTracked = async (userId: string) => {
   }
 };
 
-// Get current signup statistics
+// Get current signup statistics using secure database function
 export const getSignupStats = async () => {
   try {
-    const { count, error } = await supabase
-      .from('early_adopter_signups')
-      .select('*', { count: 'exact', head: true });
+    const { data, error } = await supabase
+      .rpc('get_early_adopter_count');
 
     if (error) {
       console.error('Error getting signup stats:', error);
       return { count: 0, error };
     }
 
-    return { count: count || 0, error: null };
+    return { count: data || 0, error: null };
   } catch (error) {
     console.error('Error getting signup stats:', error);
     return { count: 0, error };
